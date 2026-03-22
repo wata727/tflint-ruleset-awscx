@@ -1,4 +1,4 @@
-module github.com/terraform-linters/tflint-ruleset-template
+module github.com/wata727/tflint-ruleset-awscx
 
 go 1.26.1
 
