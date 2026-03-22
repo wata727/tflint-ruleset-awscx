@@ -108,7 +108,7 @@ Copy this section for each rule candidate.
 
 ## awscx_s3_bucket_deprecated_acl
 
-- Status: new
+- Status: implemented
 - Resource(s): `aws_s3_bucket`
 - Short description: Warn when deprecated inline `acl` is used on `aws_s3_bucket`.
 - Why it matters: Inline bucket ACL usage is deprecated in the provider, and newer S3 defaults make ACL-driven access patterns more error-prone for new buckets.
@@ -116,19 +116,21 @@ Copy this section for each rule candidate.
 - False-positive risk: low
 - Implementation difficulty: low
 - Overlap notes: This is partly a deprecation/upgrade rule rather than a pure correctness rule, but it is strongly grounded in AWS/provider behavior changes.
-- Selected on:
-- Implemented on:
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
 
 ### Sources
 
 - AWS docs: https://aws.amazon.com/about-aws/whats-new/2022/12/amazon-s3-automatically-enable-block-public-access-disable-access-control-lists-buckets-april-2023/
-- Terraform Registry docs:
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_acl
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_ownership_controls
 - terraform-provider-aws issue/PR: https://github.com/hashicorp/terraform-provider-aws/issues/28353
 
 ### Notes
 
-- Good candidate for a `WARNING` severity rule.
-- Before implementing, confirm whether this repository wants deprecation guidance rules in addition to invalid-value rules.
+- Implemented as a `WARNING` to surface the provider deprecation without over-claiming that every existing bucket configuration is immediately invalid.
+- The rule intentionally checks only explicit inline `acl` usage and does not try to infer bucket age or object ownership settings.
 
 ## awscx_launch_template_require_imdsv2
 

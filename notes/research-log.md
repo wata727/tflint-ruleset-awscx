@@ -134,3 +134,37 @@ Each entry should be short, but should leave enough context for the next cycle t
   - Choose whether this repository should include advisory `WARNING` rules such as deprecation and hardening guidance.
   - Add Terraform Registry documentation links for the two backlog candidates when selecting one for implementation.
   - Note: the referenced fixture cleanup applied to a previous repository state and is preserved here as history.
+
+## 2026-03-23 - Cycle 1
+
+- Goal: Research a practical AWS-specific rule candidate and implement one low-noise rule.
+- Candidates investigated:
+  - `awscx_s3_bucket_deprecated_acl`
+  - `awscx_launch_template_require_imdsv2`
+  - `awscx_db_instance_publicly_accessible`
+- Selected candidate:
+  - `awscx_s3_bucket_deprecated_acl`
+- Why selected:
+  - The rule is strongly grounded in provider deprecation guidance and AWS's post-April-2023 S3 defaults.
+  - Detection is simple and low-noise because it only flags explicit inline `acl` usage on `aws_s3_bucket`.
+  - The alternative candidates were more sensitive to environment-specific intent and would have needed looser heuristics to avoid false positives.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_acl
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_ownership_controls
+  - https://github.com/hashicorp/terraform-provider-aws/issues/28353
+  - https://aws.amazon.com/about-aws/whats-new/2022/12/amazon-s3-automatically-enable-block-public-access-disable-access-control-lists-buckets-april-2023/
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_s3_bucket_deprecated_acl.go`
+  - `rules/aws_s3_bucket_deprecated_acl_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `WARNING` rule that reports deprecated inline `acl` usage on `aws_s3_bucket` and points users toward the newer S3 ACL and ownership-control resources.
+- Follow-up ideas:
+  - Revisit `awscx_launch_template_require_imdsv2` with an explicit `http_tokens = "optional"` trigger to keep noise low.
+  - Explore another S3 rule around ownership controls only if it can be implemented without cross-resource guesswork.
