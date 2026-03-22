@@ -14,6 +14,7 @@ func main() {
 			Rules: []tflint.Rule{
 				rules.NewAwsAPIGatewayDeploymentDeprecatedStageManagementRule(),
 				rules.NewAwsDBInstanceMissingIOPSRule(),
+				rules.NewAwsDBInstanceStorageThroughputNonGP3Rule(),
 				rules.NewAwsDynamoDBTableInvalidStreamViewTypeRule(),
 				rules.NewAwsEBSVolumeMissingIOPSRule(),
 				rules.NewAwsEKSAddonDeprecatedResolveConflictsRule(),

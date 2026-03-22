@@ -85,16 +85,16 @@ Copy this section for each rule candidate.
 
 ## awscx_db_instance_storage_throughput_non_gp3
 
-- Status: deferred
+- Status: implemented
 - Resource(s): `aws_db_instance`
 - Short description: Disallow `storage_throughput` unless `storage_type = "gp3"`.
 - Why it matters: The provider docs state that `storage_throughput` can only be set with gp3 storage, so mismatched usage is almost certainly invalid.
-- Detection approach: Evaluate `storage_type` when `storage_throughput` is present and report if it is not `gp3`.
+- Detection approach: Report when `storage_throughput` is present and either `storage_type` is omitted or it evaluates to a value other than `gp3`.
 - False-positive risk: low
 - Implementation difficulty: low
 - Overlap notes: Complements the existing `awscx_db_instance_missing_iops` rule.
-- Selected on:
-- Implemented on:
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
 
 ### Sources
 
@@ -104,7 +104,8 @@ Copy this section for each rule candidate.
 
 ### Notes
 
-- Good follow-up candidate if the repository wants another direct RDS storage validation rule.
+- Implemented as an `ERROR` because the provider documents this as an invalid attribute combination rather than a best-practice recommendation.
+- The rule intentionally skips ambiguous `storage_type` expressions and only reports explicit non-`gp3` values or omitted `storage_type`.
 
 ## awscx_db_instance_dedicated_log_volume_without_provisioned_iops
 

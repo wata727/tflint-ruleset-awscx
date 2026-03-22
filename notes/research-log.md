@@ -298,6 +298,39 @@ Each entry should be short, but should leave enough context for the next cycle t
   - Revisit `aws_s3_bucket_deprecated_logging` if the repository wants another narrowly scoped provider-upgrade warning.
   - Look for a non-deprecation EKS rule with similarly explicit detection, such as an invalid or contradictory attribute combination.
 
+## 2026-03-23 - Cycle 10
+
+- Goal: Add another low-noise AWS/provider validity rule with explicit RDS storage semantics.
+- Candidates investigated:
+  - `awscx_db_instance_storage_throughput_non_gp3`
+  - `awscx_db_instance_dedicated_log_volume_without_provisioned_iops`
+  - `awscx_ebs_volume_throughput_non_gp3`
+- Selected candidate:
+  - `awscx_db_instance_storage_throughput_non_gp3`
+- Why selected:
+  - The provider documentation explicitly states that `storage_throughput` can only be set when `storage_type = "gp3"`, making this a direct validity check rather than an organizational policy preference.
+  - Detection is low-noise because it only needs explicit resource attributes and can conservatively skip unknown `storage_type` expressions.
+  - The dedicated-log-volume candidate still needs tighter confirmation of the exact Terraform storage-type mapping for "Provisioned IOPS", and the EBS throughput idea was deprioritized in favor of the already-documented RDS backlog item.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/db_instance.html.markdown
+  - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_Storage.html#gp3-storage
+  - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_PIOPS.StorageTypes.html#USER_PIOPS.dlv
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_db_instance_storage_throughput_non_gp3.go`
+  - `rules/aws_db_instance_storage_throughput_non_gp3_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added an `ERROR` rule that reports `aws_db_instance` resources setting `storage_throughput` without `storage_type = "gp3"`.
+- Follow-up ideas:
+  - Revisit `awscx_db_instance_dedicated_log_volume_without_provisioned_iops` after verifying the exact accepted `storage_type` set from provider or API references.
+  - Explore another explicit storage-combination rule outside RDS to avoid clustering too many consecutive database checks.
+
 ## 2026-03-23 - Cycle 15
 
 - Goal: Implement one more low-noise AWS provider rule grounded directly in current provider documentation.
