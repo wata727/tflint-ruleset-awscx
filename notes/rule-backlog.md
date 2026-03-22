@@ -229,6 +229,31 @@ Copy this section for each rule candidate.
 
 - Deferred because the rule would encode a policy preference rather than a provider or AWS-side validity requirement.
 
+## awscx_eks_addon_deprecated_resolve_conflicts
+
+- Status: implemented
+- Resource(s): `aws_eks_addon`
+- Short description: Warn when deprecated `resolve_conflicts` is used.
+- Why it matters: The provider deprecated `resolve_conflicts` in favor of separate create and update attributes because create-time and update-time semantics differ, especially for `PRESERVE`.
+- Detection approach: Flag any explicit `resolve_conflicts` attribute on `aws_eks_addon`.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Provider deprecation rule with direct user migration guidance; intentionally limited to explicit attribute usage.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/eks/latest/APIReference/API_CreateAddon.html
+- AWS docs: https://docs.aws.amazon.com/eks/latest/APIReference/API_UpdateAddon.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eks_addon
+- terraform-provider-aws issue/PR: https://github.com/hashicorp/terraform-provider-aws/issues/27481
+
+### Notes
+
+- Implemented as a `WARNING` because the configuration may still work for some values, but it is deprecated and the replacement attributes are more precise.
+- The rule does not inspect the attribute value because any explicit use of `resolve_conflicts` should migrate to the split create/update attributes.
+
 ## awscx_launch_template_imdsv2_optional_tokens
 
 - Status: implemented

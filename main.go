@@ -15,6 +15,7 @@ func main() {
 				rules.NewAwsDBInstanceMissingIOPSRule(),
 				rules.NewAwsDynamoDBTableInvalidStreamViewTypeRule(),
 				rules.NewAwsEBSVolumeMissingIOPSRule(),
+				rules.NewAwsEKSAddonDeprecatedResolveConflictsRule(),
 				rules.NewAwsEFSFileSystemMissingProvisionedThroughputRule(),
 				rules.NewAwsInstanceIMDSv2OptionalTokensRule(),
 				rules.NewAwsLaunchTemplateIMDSv2OptionalTokensRule(),

@@ -264,6 +264,39 @@ Each entry should be short, but should leave enough context for the next cycle t
   - Look for another low-noise validity rule in EFS or RDS to keep the ruleset balanced across services.
   - Revisit advisory candidates only if they can be narrowed to explicit high-signal configurations.
 
+## 2026-03-23 - Cycle 9
+
+- Goal: Research another low-noise AWS/provider-specific rule and implement one practical warning.
+- Candidates investigated:
+  - `awscx_eks_addon_deprecated_resolve_conflicts`
+  - `awscx_s3_bucket_deprecated_logging`
+  - `awscx_db_instance_publicly_accessible`
+- Selected candidate:
+  - `awscx_eks_addon_deprecated_resolve_conflicts`
+- Why selected:
+  - The provider deprecation is explicit and actionable, and the replacement attributes map cleanly to AWS create/update behavior.
+  - Detection is low-noise because the rule only flags explicit use of the deprecated attribute.
+  - The alternatives were either another near-duplicate S3 deprecation warning or a security heuristic with materially higher intent sensitivity.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eks_addon
+  - https://github.com/hashicorp/terraform-provider-aws/issues/27481
+  - https://docs.aws.amazon.com/eks/latest/APIReference/API_CreateAddon.html
+  - https://docs.aws.amazon.com/eks/latest/APIReference/API_UpdateAddon.html
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_eks_addon_deprecated_resolve_conflicts.go`
+  - `rules/aws_eks_addon_deprecated_resolve_conflicts_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - pending
+- Result:
+  - Added a new `WARNING` rule that reports deprecated `resolve_conflicts` usage on `aws_eks_addon` and points users to the split create/update attributes.
+- Follow-up ideas:
+  - Revisit `aws_s3_bucket_deprecated_logging` if the repository wants another narrowly scoped provider-upgrade warning.
+  - Look for a non-deprecation EKS rule with similarly explicit detection, such as an invalid or contradictory attribute combination.
+
 ## 2026-03-23 - Cycle 5
 
 - Goal: Continue adding non-advisory AWS validity rules with simple static detection.
@@ -391,3 +424,36 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Revisit `logging` or `lifecycle_rule` if the repository wants to continue the S3 bucket split-resource migration family.
   - Prefer a non-S3 candidate in the following cycle to keep service coverage broad.
+
+## 2026-03-23 - Cycle 9
+
+- Goal: Research another low-noise AWS/provider-specific rule and implement one practical warning.
+- Candidates investigated:
+  - `awscx_eks_addon_deprecated_resolve_conflicts`
+  - `awscx_s3_bucket_deprecated_logging`
+  - `awscx_db_instance_publicly_accessible`
+- Selected candidate:
+  - `awscx_eks_addon_deprecated_resolve_conflicts`
+- Why selected:
+  - The provider deprecation is explicit and actionable, and the replacement attributes map cleanly to AWS create/update behavior.
+  - Detection is low-noise because the rule only flags explicit use of the deprecated attribute.
+  - The alternatives were either another near-duplicate S3 deprecation warning or a security heuristic with materially higher intent sensitivity.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eks_addon
+  - https://github.com/hashicorp/terraform-provider-aws/issues/27481
+  - https://docs.aws.amazon.com/eks/latest/APIReference/API_CreateAddon.html
+  - https://docs.aws.amazon.com/eks/latest/APIReference/API_UpdateAddon.html
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_eks_addon_deprecated_resolve_conflicts.go`
+  - `rules/aws_eks_addon_deprecated_resolve_conflicts_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `WARNING` rule that reports deprecated `resolve_conflicts` usage on `aws_eks_addon` and points users to the split create/update attributes.
+- Follow-up ideas:
+  - Revisit `aws_s3_bucket_deprecated_logging` if the repository wants another narrowly scoped provider-upgrade warning.
+  - Look for a non-deprecation EKS rule with similarly explicit detection, such as an invalid or contradictory attribute combination.
