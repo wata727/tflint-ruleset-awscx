@@ -521,6 +521,30 @@ Copy this section for each rule candidate.
 - Implemented as `ERROR` because the configuration is incomplete for provisioned IOPS volume types without an explicit IOPS value.
 - The rule does not validate the allowed numeric range for `iops`, which depends on volume type and instance support.
 
+## awscx_ebs_volume_throughput_non_gp3
+
+- Status: implemented
+- Resource(s): `aws_ebs_volume`
+- Short description: Disallow `throughput` unless `type = "gp3"`.
+- Why it matters: The provider and EC2 API both document throughput as valid only for gp3 EBS volumes, so using it elsewhere is almost certainly an invalid configuration.
+- Detection approach: Report when `throughput` is present and either `type` is omitted or it evaluates to a value other than `gp3`.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Sibling validity rule to `awscx_ebs_volume_missing_iops`, but focused on the gp3-only throughput setting.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_EbsBlockDevice.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ebs_volume
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Implemented as `ERROR` because `throughput` outside `gp3` is documented as invalid rather than advisory guidance.
+- The rule intentionally skips unknown `type` expressions and only reports explicit non-`gp3` values or omitted `type`.
+
 ## awscx_db_instance_missing_iops
 
 - Status: implemented

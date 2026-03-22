@@ -17,6 +17,7 @@ func main() {
 				rules.NewAwsDBInstanceStorageThroughputNonGP3Rule(),
 				rules.NewAwsDynamoDBTableInvalidStreamViewTypeRule(),
 				rules.NewAwsEBSVolumeMissingIOPSRule(),
+				rules.NewAwsEBSVolumeThroughputNonGP3Rule(),
 				rules.NewAwsEKSAddonDeprecatedResolveConflictsRule(),
 				rules.NewAwsEFSFileSystemMissingProvisionedThroughputRule(),
 				rules.NewAwsInstanceDeprecatedNetworkInterfaceRule(),

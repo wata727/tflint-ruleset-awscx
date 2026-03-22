@@ -298,6 +298,37 @@ Each entry should be short, but should leave enough context for the next cycle t
   - Revisit `aws_s3_bucket_deprecated_logging` if the repository wants another narrowly scoped provider-upgrade warning.
   - Look for a non-deprecation EKS rule with similarly explicit detection, such as an invalid or contradictory attribute combination.
 
+## 2026-03-23 - Cycle 16
+
+- Goal: Add another low-noise AWS validity rule grounded in an explicit provider/API constraint.
+- Candidates investigated:
+  - `awscx_ebs_volume_throughput_non_gp3`
+  - `awscx_sqs_queue_invalid_fifo_throughput_limit`
+  - `awscx_efs_file_system_provisioned_throughput_non_provisioned`
+- Selected candidate:
+  - `awscx_ebs_volume_throughput_non_gp3`
+- Why selected:
+  - The provider documentation and EC2 API both state that EBS `throughput` is valid only for `gp3`, making this a direct invalid-combination check rather than a best-practice heuristic.
+  - Detection is simple and low-noise because it only reports explicit `throughput` usage with an omitted or non-`gp3` `type`.
+  - The SQS candidate is still promising but slightly narrower in day-to-day usage, and the EFS inverse check overlaps heavily with the existing provisioned-throughput rule family.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ebs_volume
+  - https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_EbsBlockDevice.html
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_ebs_volume_throughput_non_gp3.go`
+  - `rules/aws_ebs_volume_throughput_non_gp3_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added an `ERROR` rule that reports `aws_ebs_volume` resources using `throughput` without `type = "gp3"`.
+- Follow-up ideas:
+  - Revisit the SQS high-throughput FIFO attribute-combination rule for a future cycle.
+  - Consider the inverse EFS throughput-mode rule only if it adds value beyond the existing missing-throughput check.
+
 ## 2026-03-23 - Cycle 10
 
 - Goal: Add another low-noise AWS/provider validity rule with explicit RDS storage semantics.
