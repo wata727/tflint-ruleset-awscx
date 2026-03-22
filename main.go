@@ -13,6 +13,7 @@ func main() {
 			Version: "0.1.0",
 			Rules: []tflint.Rule{
 				rules.NewAwsDynamoDBTableInvalidStreamViewTypeRule(),
+				rules.NewAwsEFSFileSystemMissingProvisionedThroughputRule(),
 				rules.NewAwsInstanceIMDSv2OptionalTokensRule(),
 				rules.NewAwsLaunchTemplateIMDSv2OptionalTokensRule(),
 				rules.NewAwsS3BucketDeprecatedACLRule(),

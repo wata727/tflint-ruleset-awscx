@@ -180,6 +180,30 @@ Copy this section for each rule candidate.
 - Implemented as a `WARNING` because some environments may still depend on IMDSv1 compatibility during migration.
 - The rule does not flag omitted `metadata_options`, because account-level defaults can already require IMDSv2.
 
+## awscx_efs_file_system_missing_provisioned_throughput
+
+- Status: implemented
+- Resource(s): `aws_efs_file_system`
+- Short description: Require `provisioned_throughput_in_mibps` when `throughput_mode = "provisioned"`.
+- Why it matters: AWS requires a provisioned throughput value when EFS is configured for provisioned throughput mode.
+- Detection approach: Evaluate `throughput_mode` and report when it is explicitly `provisioned` while `provisioned_throughput_in_mibps` is absent.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Focused provider-facing validity check with a direct AWS-side requirement.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/efs/latest/ug/throughput-modes.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/efs_file_system
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Implemented as `ERROR` because the configuration is incomplete when provisioned mode is selected without a throughput value.
+- The rule only checks the missing-attribute case and does not validate numeric limits, which may vary by Region and quota.
+
 ## Backlog Hygiene
 
 Prefer keeping this file concise and current.

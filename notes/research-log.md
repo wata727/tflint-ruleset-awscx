@@ -232,3 +232,34 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Look for a non-IMDS candidate next to keep the ruleset balanced across AWS services.
   - Explore simple enum or deprecated-argument checks in RDS, EFS, and EC2 resources.
+
+## 2026-03-23 - Cycle 4
+
+- Goal: Add a non-IMDS rule grounded in an AWS or provider requirement with low false-positive risk.
+- Candidates investigated:
+  - `awscx_efs_file_system_missing_provisioned_throughput`
+  - `awscx_db_instance_publicly_accessible`
+  - `awscx_lb_missing_deletion_protection`
+- Selected candidate:
+  - `awscx_efs_file_system_missing_provisioned_throughput`
+- Why selected:
+  - AWS explicitly requires a provisioned throughput value when an EFS file system uses `throughput_mode = "provisioned"`.
+  - The condition is easy to detect statically and does not depend on account policy, workload intent, or organization-specific conventions.
+  - The alternative candidates were more advisory and therefore more likely to be noisy in legitimate deployments.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/efs_file_system
+  - https://docs.aws.amazon.com/efs/latest/ug/throughput-modes.html
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_efs_file_system_missing_provisioned_throughput.go`
+  - `rules/aws_efs_file_system_missing_provisioned_throughput_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added an `ERROR` rule that reports `aws_efs_file_system` resources using provisioned throughput mode without `provisioned_throughput_in_mibps`.
+- Follow-up ideas:
+  - Look for another low-noise validity rule in EFS or RDS to keep the ruleset balanced across services.
+  - Revisit advisory candidates only if they can be narrowed to explicit high-signal configurations.
