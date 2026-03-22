@@ -740,6 +740,31 @@ Copy this section for each rule candidate.
 
 - Deferred because the rule would be advisory rather than invalidity-driven, and this cycle favored a lower-noise correctness rule.
 
+## awscx_sns_topic_fifo_name_suffix
+
+- Status: implemented
+- Resource(s): `aws_sns_topic`
+- Short description: Require FIFO SNS topic names to end with `.fifo`.
+- Why it matters: AWS and the provider both document the `.fifo` suffix as a hard requirement for FIFO topics, so missing it is a direct configuration error rather than a style preference.
+- Detection approach: Report resources that explicitly set `fifo_topic = true` and `name` without the `.fifo` suffix.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Sibling to the existing SQS FIFO suffix rule, but still worthwhile because SNS FIFO topics use a different resource and API.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/sns/latest/api/API_CreateTopic.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic
+- Raw provider docs: https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/sns_topic.html.markdown
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Implemented as an `ERROR` because FIFO topic creation requires the `.fifo` suffix.
+- The rule intentionally skips cases that use `name_prefix` or unknown expressions, because the final generated name is not statically known.
+
 ## Backlog Hygiene
 
 Prefer keeping this file concise and current.

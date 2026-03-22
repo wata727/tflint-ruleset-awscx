@@ -888,3 +888,36 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Extend the same semantic check to `aws_security_group_rule` or the `aws_vpc_security_group_*_rule` resources if the repository wants broader SG coverage.
   - Revisit the ALB/NLB listener certificate candidate only after reviewing protocol-specific requirements in more detail.
+
+## 2026-03-23 - Cycle 20
+
+- Goal: Add another low-noise AWS validity rule grounded in an explicit SNS naming requirement.
+- Candidates investigated:
+  - `awscx_sns_topic_fifo_name_suffix`
+  - `awscx_s3_bucket_deprecated_policy`
+  - `awscx_s3_bucket_deprecated_cors_rule`
+  - `awscx_instance_secondary_private_ips_with_network_interface`
+- Selected candidate:
+  - `awscx_sns_topic_fifo_name_suffix`
+- Why selected:
+  - AWS and the provider both document the `.fifo` suffix as a hard requirement for FIFO SNS topic names, so this is a direct validity check rather than an advisory preference.
+  - Detection is low-noise because it only reports resources that explicitly set both `fifo_topic = true` and a non-compliant `name`.
+  - The S3 candidates remain easy wins but would continue the current concentration of S3 deprecation warnings, while the EC2 candidate needs slightly more care around network-interface semantics.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/sns_topic.html.markdown
+  - https://docs.aws.amazon.com/sns/latest/api/API_CreateTopic.html
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_sns_topic_fifo_name_suffix.go`
+  - `rules/aws_sns_topic_fifo_name_suffix_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `ERROR` rule that reports `aws_sns_topic` resources with `fifo_topic = true` whose explicit `name` does not end with `.fifo`.
+- Follow-up ideas:
+  - Revisit `awscx_s3_bucket_deprecated_policy` and `awscx_s3_bucket_deprecated_cors_rule` when the next cycle can absorb another provider-upgrade warning.
+  - Explore whether `aws_instance.secondary_private_ips` combined with a `network_interface` block can be implemented conservatively enough for a future `ERROR` rule.

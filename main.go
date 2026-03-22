@@ -33,6 +33,7 @@ func main() {
 				rules.NewAwsS3BucketDeprecatedServerSideEncryptionConfigurationRule(),
 				rules.NewAwsS3BucketDeprecatedVersioningRule(),
 				rules.NewAwsS3BucketDeprecatedWebsiteRule(),
+				rules.NewAwsSNSTopicFIFONameSuffixRule(),
 				rules.NewAwsSecurityGroupAllProtocolNonzeroPortsRule(),
 				rules.NewAwsSecurityGroupInvalidProtocolRule(),
 				rules.NewAwsSQSQueueFIFONameSuffixRule(),
