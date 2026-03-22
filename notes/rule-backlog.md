@@ -60,6 +60,29 @@ Copy this section for each rule candidate.
 
 ## Candidates
 
+## awscx_lb_listener_missing_certificate_arn
+
+- Status: implemented
+- Resource(s): `aws_lb_listener`
+- Short description: Require `certificate_arn` when the listener protocol is `HTTPS` or `TLS`.
+- Why it matters: The provider documentation requires a default certificate for encrypted listeners, so omitting it is almost certainly an invalid configuration.
+- Detection approach: Evaluate `protocol` and report when it resolves to `HTTPS` or `TLS` but `certificate_arn` is not configured.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Focused ELB listener validity rule with minimal overlap with existing EC2 and S3 checks.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/elasticloadbalancing/latest/APIReference/API_CreateListener.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_listener
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Implemented as `ERROR` because encrypted listeners require a default certificate rather than merely recommending one.
+
 ## awscx_instance_deprecated_network_interface
 
 - Status: implemented

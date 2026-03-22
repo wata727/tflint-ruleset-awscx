@@ -921,3 +921,38 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Revisit `awscx_s3_bucket_deprecated_policy` and `awscx_s3_bucket_deprecated_cors_rule` when the next cycle can absorb another provider-upgrade warning.
   - Explore whether `aws_instance.secondary_private_ips` combined with a `network_interface` block can be implemented conservatively enough for a future `ERROR` rule.
+
+## 2026-03-23 - Cycle 21
+
+- Goal: Add another low-noise AWS validity rule grounded in explicit listener certificate requirements.
+- Candidates investigated:
+  - `awscx_lb_listener_missing_certificate_arn`
+  - `awscx_s3_bucket_deprecated_policy`
+  - `awscx_launch_template_security_group_names`
+- Selected candidate:
+  - `awscx_lb_listener_missing_certificate_arn`
+- Why selected:
+  - The provider documentation makes the certificate requirement explicit for encrypted listeners, which keeps the rule squarely in invalid-configuration territory.
+  - Detection is simple and low-noise because it only checks explicit `aws_lb_listener` blocks with a resolvable `protocol` of `HTTPS` or `TLS`.
+  - The S3 policy candidate is still easy to implement but would further concentrate the ruleset on S3 deprecation warnings, while the launch template candidate is more advisory than mandatory.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_listener
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/lb_listener.html.markdown
+  - https://docs.aws.amazon.com/elasticloadbalancing/latest/APIReference/API_CreateListener.html
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/s3_bucket.html.markdown
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/launch_template
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_lb_listener_missing_certificate_arn.go`
+  - `rules/aws_lb_listener_missing_certificate_arn_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `ERROR` rule that reports `aws_lb_listener` resources using `protocol = "HTTPS"` or `protocol = "TLS"` without `certificate_arn`.
+- Follow-up ideas:
+  - Revisit `awscx_s3_bucket_deprecated_policy` or `awscx_s3_bucket_deprecated_cors_rule` if the next cycle wants another low-risk provider deprecation warning.
+  - Explore an ELB listener follow-up around protocol-specific certificate or ALPN semantics only if the provider docs give equally explicit static requirements.
