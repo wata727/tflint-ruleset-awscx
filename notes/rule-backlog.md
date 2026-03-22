@@ -132,29 +132,29 @@ Copy this section for each rule candidate.
 - Implemented as a `WARNING` to surface the provider deprecation without over-claiming that every existing bucket configuration is immediately invalid.
 - The rule intentionally checks only explicit inline `acl` usage and does not try to infer bucket age or object ownership settings.
 
-## awscx_launch_template_require_imdsv2
+## awscx_launch_template_imdsv2_optional_tokens
 
-- Status: new
+- Status: implemented
 - Resource(s): `aws_launch_template`
-- Short description: Require `metadata_options.http_tokens = "required"` when `metadata_options` is configured, or warn when `metadata_options` is absent.
+- Short description: Warn when `metadata_options.http_tokens = "optional"` explicitly allows IMDSv1.
 - Why it matters: AWS recommends requiring IMDSv2 for new instances, and launch-template metadata settings are a common place to enforce that defense-in-depth control.
-- Detection approach: Inspect `metadata_options` on `aws_launch_template` and flag missing or non-compliant `http_tokens`.
-- False-positive risk: medium
+- Detection approach: Inspect `metadata_options.http_tokens` on `aws_launch_template` and report only the explicit `"optional"` setting.
+- False-positive risk: low
 - Implementation difficulty: low
-- Overlap notes: Strong AWS security guidance, but severity and exact trigger conditions should be chosen carefully to avoid noisy checks in environments that enforce this elsewhere.
-- Selected on:
-- Implemented on:
+- Overlap notes: A narrower version of the original IMDSv2 candidate, chosen to avoid guessing account-level defaults, AMI settings, or organization policies.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
 
 ### Sources
 
 - AWS docs: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-IMDS-new-instances.html
-- Terraform Registry docs:
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/launch_template
 - terraform-provider-aws issue/PR: https://github.com/hashicorp/terraform-provider-aws/issues/25909
 
 ### Notes
 
-- Likely best as `WARNING` unless the repository decides to treat IMDSv2 as mandatory.
-- A lower-noise version would only flag explicit `http_tokens = "optional"`.
+- Implemented as a `WARNING` because some environments may intentionally retain IMDSv1 compatibility for older software.
+- The rule does not flag omitted `metadata_options`, because account-level IMDS defaults and AMI configuration can make omission safe.
 
 ## Backlog Hygiene
 

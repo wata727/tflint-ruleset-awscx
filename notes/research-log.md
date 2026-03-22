@@ -166,5 +166,37 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Result:
   - Added a new `WARNING` rule that reports deprecated inline `acl` usage on `aws_s3_bucket` and points users toward the newer S3 ACL and ownership-control resources.
 - Follow-up ideas:
-  - Revisit `awscx_launch_template_require_imdsv2` with an explicit `http_tokens = "optional"` trigger to keep noise low.
+  - Revisit launch-template IMDS checks with an explicit `http_tokens = "optional"` trigger to keep noise low.
   - Explore another S3 rule around ownership controls only if it can be implemented without cross-resource guesswork.
+
+## 2026-03-23 - Cycle 2
+
+- Goal: Implement another AWS-specific rule with strong security value while keeping false positives low.
+- Candidates investigated:
+  - `awscx_launch_template_imdsv2_optional_tokens`
+  - `awscx_db_instance_publicly_accessible`
+  - `awscx_instance_imdsv2_optional_tokens`
+- Selected candidate:
+  - `awscx_launch_template_imdsv2_optional_tokens`
+- Why selected:
+  - AWS directly recommends requiring IMDSv2 for new instances, and `http_tokens = "optional"` is an explicit, statically detectable opt-in to IMDSv1 compatibility.
+  - Restricting the rule to launch templates and to the explicit `"optional"` value avoids guessing about account defaults, AMI defaults, or organization-wide controls.
+  - The alternative candidates were either broader variants of the same idea or depended more heavily on deployment intent.
+- Sources used:
+  - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-IMDS-new-instances.html
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/launch_template
+  - https://github.com/hashicorp/terraform-provider-aws/issues/25909
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_launch_template_imdsv2_optional_tokens.go`
+  - `rules/aws_launch_template_imdsv2_optional_tokens_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `WARNING` rule that reports launch templates explicitly configured with `metadata_options.http_tokens = "optional"`.
+- Follow-up ideas:
+  - Consider the same explicit-optional IMDS check for `aws_instance` if the repository wants parallel coverage outside launch templates.
+  - Look for another low-noise rule around deprecated or invalid enum-style values in EC2 and RDS resources.
