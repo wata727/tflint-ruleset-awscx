@@ -60,6 +60,75 @@ Copy this section for each rule candidate.
 
 ## Candidates
 
+## awscx_instance_deprecated_network_interface
+
+- Status: implemented
+- Resource(s): `aws_instance`
+- Short description: Warn when deprecated `network_interface` blocks are used on `aws_instance`.
+- Why it matters: The provider explicitly deprecates this block and points users to `primary_network_interface` for the primary ENI and `aws_network_interface_attachment` for additional ENIs, so continuing to use it increases upgrade friction and can lock users into replacement-prone boot-time attachment behavior.
+- Detection approach: Flag any `network_interface` block present on `aws_instance`.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Another provider deprecation rule, but narrowly scoped to explicit block usage with clear replacement guidance.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- AWS docs:
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Implemented as a `WARNING` because deprecated configurations can still exist during migration, but the replacement path is explicit in the provider docs.
+
+## awscx_db_instance_storage_throughput_non_gp3
+
+- Status: deferred
+- Resource(s): `aws_db_instance`
+- Short description: Disallow `storage_throughput` unless `storage_type = "gp3"`.
+- Why it matters: The provider docs state that `storage_throughput` can only be set with gp3 storage, so mismatched usage is almost certainly invalid.
+- Detection approach: Evaluate `storage_type` when `storage_throughput` is present and report if it is not `gp3`.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Complements the existing `awscx_db_instance_missing_iops` rule.
+- Selected on:
+- Implemented on:
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_Storage.html#gp3-storage
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Good follow-up candidate if the repository wants another direct RDS storage validation rule.
+
+## awscx_db_instance_dedicated_log_volume_without_provisioned_iops
+
+- Status: deferred
+- Resource(s): `aws_db_instance`
+- Short description: Require a Provisioned IOPS storage type when `dedicated_log_volume = true`.
+- Why it matters: The provider docs say dedicated log volume requires Provisioned IOPS.
+- Detection approach: Evaluate `dedicated_log_volume` and `storage_type`, then report when the value is true and the storage type is clearly incompatible.
+- False-positive risk: medium
+- Implementation difficulty: low
+- Overlap notes: Promising, but the exact accepted storage-type set should be verified before implementation to avoid over-claiming.
+- Selected on:
+- Implemented on:
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_PIOPS.StorageTypes.html#USER_PIOPS.dlv
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Deferred because "Provisioned IOPS" needs a tighter mapping to Terraform `storage_type` values before turning it into a lint error.
+
 ## awscx_dynamodb_table_invalid_stream_view_type
 
 - Status: implemented

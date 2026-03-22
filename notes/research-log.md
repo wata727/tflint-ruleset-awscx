@@ -218,6 +218,7 @@ Each entry should be short, but should leave enough context for the next cycle t
   - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-IMDS-new-instances.html
   - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance
   - https://github.com/hashicorp/terraform-provider-aws/issues/10949
+
 - Files changed:
   - `main.go`
   - `README.md`
@@ -296,6 +297,39 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Revisit `aws_s3_bucket_deprecated_logging` if the repository wants another narrowly scoped provider-upgrade warning.
   - Look for a non-deprecation EKS rule with similarly explicit detection, such as an invalid or contradictory attribute combination.
+
+## 2026-03-23 - Cycle 15
+
+- Goal: Implement one more low-noise AWS provider rule grounded directly in current provider documentation.
+- Candidates investigated:
+  - `awscx_instance_deprecated_network_interface`
+  - `awscx_db_instance_storage_throughput_non_gp3`
+  - `awscx_db_instance_dedicated_log_volume_without_provisioned_iops`
+- Selected candidate:
+  - `awscx_instance_deprecated_network_interface`
+- Why selected:
+  - The `aws_instance` docs explicitly mark `network_interface` as deprecated and provide direct migration targets, so the rule is easy to explain and low risk.
+  - Detection is simple because it only flags explicit deprecated block usage.
+  - The RDS candidates are still promising, but one was deferred for a later cycle and the other was not selected to avoid stacking multiple RDS storage rules in a single pass.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/instance.html.markdown
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/db_instance.html.markdown
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_instance_deprecated_network_interface.go`
+  - `rules/aws_instance_deprecated_network_interface_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `WARNING` rule that reports deprecated `network_interface` blocks on `aws_instance` and points users to the documented replacement resources.
+- Follow-up ideas:
+  - Implement `awscx_db_instance_storage_throughput_non_gp3`.
+  - Revisit `dedicated_log_volume` after tightening the accepted storage-type mapping.
 
 ## 2026-03-23 - Cycle 14
 
