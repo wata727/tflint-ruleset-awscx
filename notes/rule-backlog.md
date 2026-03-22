@@ -159,16 +159,16 @@ Copy this section for each rule candidate.
 
 ## awscx_s3_bucket_deprecated_server_side_encryption_configuration
 
-- Status: deferred
+- Status: implemented
 - Resource(s): `aws_s3_bucket`
 - Short description: Warn when deprecated inline `server_side_encryption_configuration` is used on `aws_s3_bucket`.
 - Why it matters: This is part of the same S3 bucket split-resource migration as inline versioning and would help users move to `aws_s3_bucket_server_side_encryption_configuration`.
 - Detection approach: Flag any `server_side_encryption_configuration` block present on `aws_s3_bucket`.
 - False-positive risk: low
 - Implementation difficulty: low
-- Overlap notes: Very similar to the selected versioning candidate; deferred to avoid stacking multiple nearly identical S3 deprecation rules in one cycle.
-- Selected on:
-- Implemented on:
+- Overlap notes: Sibling rule to inline versioning deprecation, still narrowly scoped to explicit inline usage.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
 
 ### Sources
 
@@ -179,7 +179,32 @@ Copy this section for each rule candidate.
 
 ### Notes
 
-- Good follow-up candidate if the repository continues to add provider deprecation checks around `aws_s3_bucket`.
+- Implemented as a `WARNING` because deprecated inline configuration can still exist in older modules while users migrate to the standalone encryption resource.
+- The rule intentionally reports only the presence of the inline block and does not attempt to validate encryption settings.
+
+## awscx_s3_bucket_deprecated_logging
+
+- Status: deferred
+- Resource(s): `aws_s3_bucket`
+- Short description: Warn when deprecated inline `logging` is used on `aws_s3_bucket`.
+- Why it matters: This is another S3 bucket argument included in the provider's split-resource deprecation plan.
+- Detection approach: Flag any `logging` block present on `aws_s3_bucket`.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Similar to the selected S3 deprecation rules; deferred to avoid shipping too many nearly identical warnings in one pass.
+- Selected on:
+- Implemented on:
+
+### Sources
+
+- HashiCorp docs: https://developer.hashicorp.com/validated-patterns/terraform/upgrade-terraform-provider
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_logging
+- terraform-provider-aws issue/PR: https://github.com/hashicorp/terraform-provider-aws/issues/20433
+
+### Notes
+
+- Viable follow-up if the repository keeps extending the S3 bucket deprecation family.
 
 ## awscx_db_instance_publicly_accessible
 

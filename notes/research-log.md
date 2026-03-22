@@ -358,3 +358,36 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Implement the sibling S3 deprecation rule for inline `server_side_encryption_configuration` if the repository wants another low-risk migration check next.
   - Continue balancing deprecation rules with direct AWS validity checks in other services.
+
+## 2026-03-23 - Cycle 8
+
+- Goal: Continue the rule loop with another low-noise AWS-specific deprecation check.
+- Candidates investigated:
+  - `awscx_s3_bucket_deprecated_server_side_encryption_configuration`
+  - `awscx_s3_bucket_deprecated_logging`
+  - `awscx_db_instance_publicly_accessible`
+- Selected candidate:
+  - `awscx_s3_bucket_deprecated_server_side_encryption_configuration`
+- Why selected:
+  - HashiCorp's upgrade guidance explicitly shows `aws_s3_bucket.server_side_encryption_configuration` producing a deprecation warning and migrating to `aws_s3_bucket_server_side_encryption_configuration`.
+  - Detection is simple and low-noise because it only reports explicit inline block usage on `aws_s3_bucket`.
+  - The inline logging candidate is valid but less prominent in the migration guidance, while the RDS public-access candidate remains more policy-driven than provider-driven.
+- Sources used:
+  - https://developer.hashicorp.com/validated-patterns/terraform/upgrade-terraform-provider
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_server_side_encryption_configuration
+  - https://github.com/hashicorp/terraform-provider-aws/issues/20433
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_s3_bucket_deprecated_server_side_encryption_configuration.go`
+  - `rules/aws_s3_bucket_deprecated_server_side_encryption_configuration_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `WARNING` rule that reports deprecated inline `server_side_encryption_configuration` blocks on `aws_s3_bucket` and directs users to `aws_s3_bucket_server_side_encryption_configuration`.
+- Follow-up ideas:
+  - Revisit `logging` or `lifecycle_rule` if the repository wants to continue the S3 bucket split-resource migration family.
+  - Prefer a non-S3 candidate in the following cycle to keep service coverage broad.
