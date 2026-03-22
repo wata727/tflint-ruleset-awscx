@@ -297,6 +297,38 @@ Each entry should be short, but should leave enough context for the next cycle t
   - Revisit `aws_s3_bucket_deprecated_logging` if the repository wants another narrowly scoped provider-upgrade warning.
   - Look for a non-deprecation EKS rule with similarly explicit detection, such as an invalid or contradictory attribute combination.
 
+## 2026-03-23 - Cycle 10
+
+- Goal: Continue the rule loop with another low-noise AWS/provider-specific deprecation check outside the recent S3 and EKS work.
+- Candidates investigated:
+  - `awscx_launch_template_deprecated_elastic_gpu_specifications`
+  - `awscx_s3_bucket_deprecated_logging`
+  - `awscx_db_instance_publicly_accessible`
+- Selected candidate:
+  - `awscx_launch_template_deprecated_elastic_gpu_specifications`
+- Why selected:
+  - AWS documents Elastic Graphics as deprecated with an end-of-life date, and the provider has an open issue to deprecate and remove `elastic_gpu_specifications`.
+  - Detection is low-noise because the rule only flags an explicit deprecated block on `aws_launch_template`.
+  - The alternative S3 logging candidate remains viable but is another near-duplicate S3 split-resource warning, while the RDS public-access candidate is still materially more policy-driven.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/launch_template
+  - https://github.com/hashicorp/terraform-provider-aws/issues/37589
+  - https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_ElasticGpuSpecificationResponse.html
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_launch_template_deprecated_elastic_gpu_specifications.go`
+  - `rules/aws_launch_template_deprecated_elastic_gpu_specifications_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - pending
+- Result:
+  - Added a new `WARNING` rule that reports deprecated `elastic_gpu_specifications` usage on `aws_launch_template`.
+- Follow-up ideas:
+  - Consider the sibling `aws_instance` variant only if the provider documentation clearly marks that path as deprecated too.
+  - Revisit `aws_s3_bucket_deprecated_logging` when another small deprecation-only change set is acceptable.
+
 ## 2026-03-23 - Cycle 5
 
 - Goal: Continue adding non-advisory AWS validity rules with simple static detection.

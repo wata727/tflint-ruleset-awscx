@@ -17,6 +17,7 @@ func main() {
 				rules.NewAwsEBSVolumeMissingIOPSRule(),
 				rules.NewAwsEKSAddonDeprecatedResolveConflictsRule(),
 				rules.NewAwsEFSFileSystemMissingProvisionedThroughputRule(),
+				rules.NewAwsLaunchTemplateDeprecatedElasticGPUSpecificationsRule(),
 				rules.NewAwsInstanceIMDSv2OptionalTokensRule(),
 				rules.NewAwsLaunchTemplateIMDSv2OptionalTokensRule(),
 				rules.NewAwsS3BucketDeprecatedACLRule(),

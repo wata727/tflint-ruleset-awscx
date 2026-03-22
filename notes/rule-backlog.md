@@ -374,6 +374,30 @@ Copy this section for each rule candidate.
 - Implemented as `ERROR` because the configuration is incomplete when one of these storage types is selected without IOPS.
 - The rule intentionally does not validate engine-specific or size-specific IOPS ranges.
 
+## awscx_launch_template_deprecated_elastic_gpu_specifications
+
+- Status: implemented
+- Resource(s): `aws_launch_template`
+- Short description: Warn when deprecated `elastic_gpu_specifications` is used.
+- Why it matters: Amazon Elastic Graphics reached end of life, and the provider tracks this block for deprecation/removal.
+- Detection approach: Flag any explicit `elastic_gpu_specifications` block on `aws_launch_template`.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Another explicit deprecation rule, but grounded in AWS service retirement rather than a generic style preference.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_ElasticGpuSpecificationResponse.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/launch_template
+- terraform-provider-aws issue/PR: https://github.com/hashicorp/terraform-provider-aws/issues/37589
+
+### Notes
+
+- Implemented as a `WARNING` because the configuration is deprecated and obsolete, but older modules may still carry the block during migration.
+- The rule intentionally checks only explicit launch template usage and does not try to infer replacement behavior for other EC2 resources.
+
 ## Backlog Hygiene
 
 Prefer keeping this file concise and current.

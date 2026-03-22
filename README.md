@@ -33,6 +33,7 @@ go test ./...
 |awscx_eks_addon_deprecated_resolve_conflicts|Warn on deprecated `resolve_conflicts` on `aws_eks_addon`|WARNING|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eks_addon|
 |awscx_efs_file_system_missing_provisioned_throughput|Require `provisioned_throughput_in_mibps` when `throughput_mode` is `provisioned`|ERROR|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/efs_file_system|
 |awscx_instance_imdsv2_optional_tokens|Warn when `metadata_options.http_tokens` on `aws_instance` explicitly allows IMDSv1|WARNING|✔|https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-IMDS-new-instances.html|
+|awscx_launch_template_deprecated_elastic_gpu_specifications|Warn on deprecated `elastic_gpu_specifications` on `aws_launch_template`|WARNING|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/launch_template|
 |awscx_launch_template_imdsv2_optional_tokens|Warn when `metadata_options.http_tokens` explicitly allows IMDSv1|WARNING|✔|https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-IMDS-new-instances.html|
 |awscx_s3_bucket_deprecated_acl|Warn on deprecated inline `acl` on `aws_s3_bucket`|WARNING|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket|
 |awscx_s3_bucket_deprecated_server_side_encryption_configuration|Warn on deprecated inline `server_side_encryption_configuration` on `aws_s3_bucket`|WARNING|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket|
