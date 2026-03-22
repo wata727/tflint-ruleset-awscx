@@ -184,7 +184,7 @@ Copy this section for each rule candidate.
 
 ## awscx_s3_bucket_deprecated_logging
 
-- Status: deferred
+- Status: implemented
 - Resource(s): `aws_s3_bucket`
 - Short description: Warn when deprecated inline `logging` is used on `aws_s3_bucket`.
 - Why it matters: This is another S3 bucket argument included in the provider's split-resource deprecation plan.
@@ -192,8 +192,8 @@ Copy this section for each rule candidate.
 - False-positive risk: low
 - Implementation difficulty: low
 - Overlap notes: Similar to the selected S3 deprecation rules; deferred to avoid shipping too many nearly identical warnings in one pass.
-- Selected on:
-- Implemented on:
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
 
 ### Sources
 
@@ -204,7 +204,8 @@ Copy this section for each rule candidate.
 
 ### Notes
 
-- Viable follow-up if the repository keeps extending the S3 bucket deprecation family.
+- Implemented as a `WARNING` because deprecated inline configuration can still exist in older modules while users migrate to the standalone logging resource.
+- The rule intentionally reports only the presence of the inline block and does not attempt to validate server access logging settings.
 
 ## awscx_db_instance_publicly_accessible
 

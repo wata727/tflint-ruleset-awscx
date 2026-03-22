@@ -297,6 +297,39 @@ Each entry should be short, but should leave enough context for the next cycle t
   - Revisit `aws_s3_bucket_deprecated_logging` if the repository wants another narrowly scoped provider-upgrade warning.
   - Look for a non-deprecation EKS rule with similarly explicit detection, such as an invalid or contradictory attribute combination.
 
+## 2026-03-23 - Cycle 11
+
+- Goal: Continue the loop with one more low-noise AWS/provider-specific rule and keep the change set small.
+- Candidates investigated:
+  - `awscx_s3_bucket_deprecated_logging`
+  - `awscx_db_instance_publicly_accessible`
+  - `awscx_lb_missing_deletion_protection`
+- Selected candidate:
+  - `awscx_s3_bucket_deprecated_logging`
+- Why selected:
+  - The provider's S3 bucket refactor plan explicitly lists inline `logging` among the arguments deprecated in favor of standalone resources.
+  - Detection stays low-noise because the rule only flags an explicit inline `logging` block on `aws_s3_bucket`.
+  - The RDS and load balancer alternatives remain more policy-driven and therefore riskier in repositories that intentionally expose public services.
+- Sources used:
+  - https://developer.hashicorp.com/validated-patterns/terraform/upgrade-terraform-provider
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_logging
+  - https://github.com/hashicorp/terraform-provider-aws/issues/20433
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_s3_bucket_deprecated_logging.go`
+  - `rules/aws_s3_bucket_deprecated_logging_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `WARNING` rule that reports deprecated inline `logging` blocks on `aws_s3_bucket` and directs users to `aws_s3_bucket_logging`.
+- Follow-up ideas:
+  - Consider `aws_s3_bucket_deprecated_lifecycle_rule` if the repository wants to complete more of the S3 split-resource migration family.
+  - Prefer a non-S3 candidate next to keep AWS service coverage balanced.
+
 ## 2026-03-23 - Cycle 10
 
 - Goal: Continue the rule loop with another low-noise AWS/provider-specific deprecation check outside the recent S3 and EKS work.
