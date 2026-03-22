@@ -12,9 +12,9 @@ The primary ongoing task is:
 2. Select one high-value, low-noise rule candidate.
 3. Implement the rule in this repository.
 4. Add or update tests.
-5. Run TFLint to verify that the rule is working as expected.
-6. Update user-facing documentation and research notes.
-7. Commit the changes and push to `main` branch.
+5. Run `go test ./...`.
+7. Update user-facing documentation and research notes.
+8. Prepare a clean, reviewable change set. Run `git commit -m <message>` and `git push origin main`.
 
 Unless the user says otherwise, optimize for practical rules that catch common mistakes, outdated usage, unsafe defaults, or provider-specific pitfalls with low false-positive risk.
 
@@ -68,6 +68,7 @@ Unless the user gives a different instruction, one work cycle means:
 4. Implement exactly one rule.
 5. Add tests.
 6. Update documentation/backlog notes.
+7. Run verification and record the result.
 
 If no good candidate is found, do not force an implementation. Instead:
 
@@ -117,6 +118,12 @@ When updating `README.md`, keep the rule table accurate. For each real rule, inc
 3. Severity
 4. Enabled status
 5. Reference link when available
+
+When a rule is implemented or updated:
+
+1. update `notes/rule-backlog.md`
+2. append a short entry to `notes/research-log.md`
+3. keep the source URLs used for the rule
 
 ## How To Report Progress
 

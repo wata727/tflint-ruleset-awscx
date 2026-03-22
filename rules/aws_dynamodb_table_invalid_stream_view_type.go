@@ -48,7 +48,7 @@ func (r *AwsDynamoDBTableInvalidStreamViewTypeRule) Severity() tflint.Severity {
 
 // Link returns the rule reference link
 func (r *AwsDynamoDBTableInvalidStreamViewTypeRule) Link() string {
-	return ""
+	return "https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_StreamSpecification.html"
 }
 
 // Check checks the pattern is valid

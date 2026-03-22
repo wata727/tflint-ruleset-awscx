@@ -15,15 +15,17 @@ Run the following command:
 make install
 ```
 
-Test the installed plugin behavior:
+## Local verification
+
+For the repository-level verification flow, use:
 
 ```shell
-tflint
+go test ./...
 ```
 
 ## Rules
 
 |Name|Description|Severity|Enabled|Link|
 | --- | --- | --- | --- | --- |
-|awscx_dynamodb_table_invalid_stream_view_type|Disallow invalid `stream_view_type`|ERROR|✔||
-|awscx_security_group_invalid_protocol|Disallow invalid `protocol`|ERROR|✔||
+|awscx_dynamodb_table_invalid_stream_view_type|Disallow invalid `stream_view_type`|ERROR|✔|https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_StreamSpecification.html|
+|awscx_security_group_invalid_protocol|Disallow invalid `protocol`|ERROR|✔|https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_IpPermission.html|

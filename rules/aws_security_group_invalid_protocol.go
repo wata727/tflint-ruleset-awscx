@@ -48,7 +48,7 @@ func (r *AwsSecurityGroupInvalidProtocolRule) Severity() tflint.Severity {
 
 // Link returns the rule reference link
 func (r *AwsSecurityGroupInvalidProtocolRule) Link() string {
-	return ""
+	return "https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_IpPermission.html"
 }
 
 // Check checks whether "protocol" in "ingress" or "egress" has invalid value
