@@ -207,6 +207,57 @@ Copy this section for each rule candidate.
 - Implemented as a `WARNING` because deprecated inline configuration can still exist in older modules while users migrate to the standalone logging resource.
 - The rule intentionally reports only the presence of the inline block and does not attempt to validate server access logging settings.
 
+## awscx_s3_bucket_deprecated_lifecycle_rule
+
+- Status: implemented
+- Resource(s): `aws_s3_bucket`
+- Short description: Warn when deprecated inline `lifecycle_rule` is used on `aws_s3_bucket`.
+- Why it matters: The AWS provider split S3 bucket lifecycle management into `aws_s3_bucket_lifecycle_configuration`, so keeping lifecycle rules inline increases upgrade friction and drifts away from current provider guidance.
+- Detection approach: Flag any `lifecycle_rule` block present on `aws_s3_bucket`.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Another S3 split-resource deprecation rule, but still narrowly scoped to explicit inline usage with a single replacement resource.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- AWS docs:
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_lifecycle_configuration
+- terraform-provider-aws issue/PR: https://github.com/hashicorp/terraform-provider-aws/issues/20433
+- HashiCorp blog: https://www.hashicorp.com/blog/terraform-aws-provider-4-0-refactors-s3-bucket-resource
+
+### Notes
+
+- Implemented as a `WARNING` because deprecated inline configuration can still exist in older modules while users migrate to the standalone lifecycle configuration resource.
+- The rule intentionally reports only the presence of the inline block and does not try to validate individual lifecycle sub-block semantics.
+
+## awscx_s3_bucket_deprecated_replication_configuration
+
+- Status: deferred
+- Resource(s): `aws_s3_bucket`
+- Short description: Warn when deprecated inline `replication_configuration` is used on `aws_s3_bucket`.
+- Why it matters: The provider moved S3 bucket replication management to `aws_s3_bucket_replication_configuration`, so inline configuration increases upgrade friction.
+- Detection approach: Flag any `replication_configuration` block present on `aws_s3_bucket`.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Very similar to the implemented S3 split-resource deprecation rules; deferred only to avoid stacking multiple near-identical warnings in one cycle.
+- Selected on:
+- Implemented on:
+
+### Sources
+
+- AWS docs:
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_replication_configuration
+- terraform-provider-aws issue/PR: https://github.com/hashicorp/terraform-provider-aws/issues/20433
+- HashiCorp blog: https://www.hashicorp.com/blog/terraform-aws-provider-4-0-refactors-s3-bucket-resource
+
+### Notes
+
+- Deferred because `lifecycle_rule` looked slightly more common and equally low-risk for the current cycle.
+
 ## awscx_db_instance_publicly_accessible
 
 - Status: deferred
@@ -229,6 +280,29 @@ Copy this section for each rule candidate.
 ### Notes
 
 - Deferred because the rule would encode a policy preference rather than a provider or AWS-side validity requirement.
+
+## awscx_lb_deletion_protection_disabled
+
+- Status: deferred
+- Resource(s): `aws_lb`
+- Short description: Warn when `enable_deletion_protection = false` is explicitly set.
+- Why it matters: Deletion protection can reduce the blast radius of accidental load balancer removal.
+- Detection approach: Flag an explicit `enable_deletion_protection = false`.
+- False-positive risk: medium
+- Implementation difficulty: low
+- Overlap notes: Operationally useful, but still closer to organization policy than a provider-side requirement.
+- Selected on:
+- Implemented on:
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/elasticloadbalancing/latest/application/edit-load-balancer-attributes.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Deferred because ephemeral or lower-environment load balancers may intentionally disable deletion protection.
 
 ## awscx_eks_addon_deprecated_resolve_conflicts
 

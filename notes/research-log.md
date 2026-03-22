@@ -297,6 +297,41 @@ Each entry should be short, but should leave enough context for the next cycle t
   - Revisit `aws_s3_bucket_deprecated_logging` if the repository wants another narrowly scoped provider-upgrade warning.
   - Look for a non-deprecation EKS rule with similarly explicit detection, such as an invalid or contradictory attribute combination.
 
+## 2026-03-23 - Cycle 12
+
+- Goal: Continue the implementation loop with a high-value, low-noise AWS provider migration rule.
+- Candidates investigated:
+  - `awscx_s3_bucket_deprecated_lifecycle_rule`
+  - `awscx_s3_bucket_deprecated_replication_configuration`
+  - `awscx_db_instance_publicly_accessible`
+  - `awscx_lb_deletion_protection_disabled`
+- Selected candidate:
+  - `awscx_s3_bucket_deprecated_lifecycle_rule`
+- Why selected:
+  - The AWS provider explicitly split inline S3 bucket lifecycle management into `aws_s3_bucket_lifecycle_configuration`, making the migration path concrete and low-ambiguity.
+  - Detection is low-noise because the rule only reports explicit inline `lifecycle_rule` blocks and does not infer broader bucket policy intent.
+  - The alternative S3 replication candidate is similarly valid but slightly less common, while the RDS and ALB candidates remain more advisory and environment-sensitive.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_lifecycle_configuration
+  - https://github.com/hashicorp/terraform-provider-aws/issues/20433
+  - https://www.hashicorp.com/blog/terraform-aws-provider-4-0-refactors-s3-bucket-resource
+  - https://docs.aws.amazon.com/securityhub/latest/userguide/exposure-rds.html
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_s3_bucket_deprecated_lifecycle_rule.go`
+  - `rules/aws_s3_bucket_deprecated_lifecycle_rule_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `WARNING` rule that reports deprecated inline `lifecycle_rule` usage on `aws_s3_bucket` and directs users to `aws_s3_bucket_lifecycle_configuration`.
+- Follow-up ideas:
+  - Continue the S3 split-resource migration family with `replication_configuration` if the repository wants another near-zero-noise provider deprecation warning.
+  - Prefer a non-S3 candidate in the next cycle if one can match the same low false-positive bar.
+
 ## 2026-03-23 - Cycle 11
 
 - Goal: Continue the loop with one more low-noise AWS/provider-specific rule and keep the change set small.

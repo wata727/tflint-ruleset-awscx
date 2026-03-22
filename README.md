@@ -36,6 +36,7 @@ go test ./...
 |awscx_launch_template_deprecated_elastic_gpu_specifications|Warn on deprecated `elastic_gpu_specifications` on `aws_launch_template`|WARNING|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/launch_template|
 |awscx_launch_template_imdsv2_optional_tokens|Warn when `metadata_options.http_tokens` explicitly allows IMDSv1|WARNING|✔|https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-IMDS-new-instances.html|
 |awscx_s3_bucket_deprecated_acl|Warn on deprecated inline `acl` on `aws_s3_bucket`|WARNING|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket|
+|awscx_s3_bucket_deprecated_lifecycle_rule|Warn on deprecated inline `lifecycle_rule` on `aws_s3_bucket`|WARNING|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket|
 |awscx_s3_bucket_deprecated_logging|Warn on deprecated inline `logging` on `aws_s3_bucket`|WARNING|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket|
 |awscx_s3_bucket_deprecated_server_side_encryption_configuration|Warn on deprecated inline `server_side_encryption_configuration` on `aws_s3_bucket`|WARNING|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket|
 |awscx_s3_bucket_deprecated_versioning|Warn on deprecated inline `versioning` on `aws_s3_bucket`|WARNING|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket|
