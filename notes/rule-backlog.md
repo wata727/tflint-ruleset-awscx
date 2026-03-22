@@ -154,6 +154,99 @@ Copy this section for each rule candidate.
 - Implemented as `ERROR` because the provider documents this as an invalid storage-type combination rather than a best-practice recommendation.
 - The rule intentionally reports only explicit `dedicated_log_volume = true` values and skips unknown expressions.
 
+## awscx_db_instance_manage_master_user_password_conflict
+
+- Status: implemented
+- Resource(s): `aws_db_instance`
+- Short description: Disallow `password` and `password_wo` when `manage_master_user_password = true`.
+- Why it matters: RDS-managed master credentials and user-supplied master passwords are mutually exclusive, so configuring both is a concrete provider-level mistake.
+- Detection approach: Evaluate `manage_master_user_password` and report any explicit `password` or `password_wo` attribute when it resolves to `true`.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Complements the existing RDS storage checks with a credential-management validity rule grounded in the provider docs.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-secrets-manager.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Implemented as `ERROR` because the provider documentation explicitly marks these attribute combinations as invalid.
+- The rule intentionally skips ambiguous expressions and only reports when `manage_master_user_password` is explicitly `true`.
+
+## awscx_db_instance_performance_insights_kms_key_without_enabled
+
+- Status: deferred
+- Resource(s): `aws_db_instance`
+- Short description: Require `performance_insights_enabled = true` when `performance_insights_kms_key_id` is set.
+- Why it matters: The provider docs require Performance Insights to be enabled before a KMS key can be set for that feature.
+- Detection approach: Report when `performance_insights_kms_key_id` is configured and `performance_insights_enabled` is omitted or explicitly `false`.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Strong follow-up candidate, but slightly less urgent than the selected credential-conflict rule.
+- Selected on:
+- Implemented on:
+
+### Sources
+
+- AWS docs:
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Deferred because the selected rule caught a more direct and higher-impact invalid configuration in the same resource.
+
+## awscx_db_instance_performance_insights_retention_without_enabled
+
+- Status: deferred
+- Resource(s): `aws_db_instance`
+- Short description: Require `performance_insights_enabled = true` when `performance_insights_retention_period` is set.
+- Why it matters: The provider docs treat custom Performance Insights retention as dependent on the feature being enabled first.
+- Detection approach: Report when `performance_insights_retention_period` is configured and `performance_insights_enabled` is omitted or explicitly `false`.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Similar to the KMS-key candidate and likely worth grouping into a later Performance Insights-focused cycle.
+- Selected on:
+- Implemented on:
+
+### Sources
+
+- AWS docs:
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Deferred because it is another companion-setting rule and the selected candidate was more immediately actionable.
+
+## awscx_spot_instance_request_legacy_api
+
+- Status: deferred
+- Resource(s): `aws_spot_instance_request`
+- Short description: Warn on `aws_spot_instance_request` because AWS strongly discourages the legacy Spot request APIs used by this resource.
+- Why it matters: AWS guidance recommends newer EC2 instance configuration paths over the legacy Spot Instance Request APIs.
+- Detection approach: Flag any use of `aws_spot_instance_request`.
+- False-positive risk: medium
+- Implementation difficulty: low
+- Overlap notes: Grounded in AWS guidance, but broader and more policy-like than explicit argument-conflict checks.
+- Selected on:
+- Implemented on:
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-best-practices.html#which-spot-request-method-to-use
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/spot_instance_request
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Deferred because warning on the entire resource would likely be noisier for teams that still intentionally use Spot Instance Requests.
+
 ## awscx_dynamodb_table_invalid_stream_view_type
 
 - Status: implemented

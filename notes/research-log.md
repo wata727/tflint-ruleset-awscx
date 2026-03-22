@@ -956,3 +956,39 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Revisit `awscx_s3_bucket_deprecated_policy` or `awscx_s3_bucket_deprecated_cors_rule` if the next cycle wants another low-risk provider deprecation warning.
   - Explore an ELB listener follow-up around protocol-specific certificate or ALPN semantics only if the provider docs give equally explicit static requirements.
+
+## 2026-03-23 - Cycle 22
+
+- Goal: Add another low-noise AWS validity rule grounded in explicit RDS credential-management requirements.
+- Candidates investigated:
+  - `awscx_db_instance_manage_master_user_password_conflict`
+  - `awscx_db_instance_performance_insights_kms_key_without_enabled`
+  - `awscx_db_instance_performance_insights_retention_without_enabled`
+  - `awscx_spot_instance_request_legacy_api`
+- Selected candidate:
+  - `awscx_db_instance_manage_master_user_password_conflict`
+- Why selected:
+  - The provider documentation explicitly forbids combining `manage_master_user_password = true` with `password` or `password_wo`.
+  - Detection is simple and low-noise because it only reports explicit conflicts rather than inferring intent from defaults.
+  - The Performance Insights candidates are still good follow-ups, but this rule is more immediately actionable because it prevents contradictory credential configuration.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/db_instance.html.markdown
+  - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-secrets-manager.html
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/spot_instance_request
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/spot_instance_request.html.markdown
+  - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-best-practices.html#which-spot-request-method-to-use
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_db_instance_manage_master_user_password_conflict.go`
+  - `rules/aws_db_instance_manage_master_user_password_conflict_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `ERROR` rule that reports `aws_db_instance` resources combining `manage_master_user_password = true` with either `password` or `password_wo`.
+- Follow-up ideas:
+  - Revisit the two deferred Performance Insights companion-setting checks in a later RDS-focused cycle.
+  - Prefer a non-RDS candidate in the next cycle to keep the ruleset coverage balanced across AWS services.
