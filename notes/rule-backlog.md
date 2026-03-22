@@ -667,6 +667,79 @@ Copy this section for each rule candidate.
 - Implemented as `ERROR` because the combination is documented as invalid and can lead to undefined behavior rather than a style preference.
 - The rule only checks explicit co-presence of the two arguments and does not attempt to validate the referenced resources.
 
+## awscx_security_group_all_protocol_nonzero_ports
+
+- Status: implemented
+- Resource(s): `aws_security_group`
+- Short description: Require inline `ingress` and `egress` rules with `protocol = "-1"` to use `from_port = 0` and `to_port = 0`.
+- Why it matters: AWS treats `IpProtocol = -1` as all protocols and all ports, so keeping nonzero ports in Terraform is misleading and can mask an unintended any-port rule.
+- Detection approach: Report inline security group rules where `protocol` evaluates to `"-1"` and either `from_port` or `to_port` evaluates to a nonzero number.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Complements `awscx_security_group_invalid_protocol` by validating a semantically dangerous all-protocol configuration rather than protocol spelling.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_IpPermission.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group
+- Raw provider docs: https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/security_group_rule.html.markdown
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Implemented as `ERROR` because the provider and EC2 API semantics are explicit, and a nonzero port range with `protocol = "-1"` is misleading rather than intentional precision.
+- The rule intentionally skips unknown port expressions instead of speculating about variable values.
+
+## awscx_lb_listener_https_missing_certificate_arn
+
+- Status: deferred
+- Resource(s): `aws_lb_listener`
+- Short description: Report HTTPS listeners that omit `certificate_arn`.
+- Why it matters: HTTPS listeners usually need an attached certificate to terminate TLS correctly.
+- Detection approach: Check `protocol = "HTTPS"` and flag missing `certificate_arn`.
+- False-positive risk: medium
+- Implementation difficulty: low
+- Overlap notes: Potentially useful, but the provider documentation needed more careful validation around protocol variants and defaults before turning it into a correctness rule.
+- Selected on:
+- Implemented on:
+
+### Sources
+
+- AWS docs:
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_listener
+- Raw provider docs: https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/lb_listener.html.markdown
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Deferred because the certificate requirements differ across listener protocols and load balancer types, so a narrow first implementation needs more source review.
+
+## awscx_sqs_queue_high_throughput_fifo_partial_settings
+
+- Status: deferred
+- Resource(s): `aws_sqs_queue`
+- Short description: Warn when only one of the high-throughput FIFO tuning attributes is set.
+- Why it matters: Partial configuration can look like high-throughput FIFO is enabled when queue-level deduplication or throughput defaults still apply.
+- Detection approach: Compare explicit `deduplication_scope` and `fifo_throughput_limit` values and warn on one-sided configuration.
+- False-positive risk: medium
+- Implementation difficulty: low
+- Overlap notes: Useful advisory candidate, but it is closer to performance tuning guidance than a hard validity check.
+- Selected on:
+- Implemented on:
+
+### Sources
+
+- AWS docs: https://aws.amazon.com/about-aws/whats-new/2021/05/amazon-sqs-now-supports-a-high-throughput-mode-for-fifo-queues/
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sqs_queue
+- Raw provider docs: https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/sqs_queue.html.markdown
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Deferred because the rule would be advisory rather than invalidity-driven, and this cycle favored a lower-noise correctness rule.
+
 ## Backlog Hygiene
 
 Prefer keeping this file concise and current.

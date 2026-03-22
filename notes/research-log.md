@@ -854,3 +854,37 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Add a narrower advisory rule around `aws_launch_template.security_group_names` if the repository wants another EC2 modernization warning.
   - Revisit `aws_eip.vpc` only if a stable primary-source provider reference for the deprecation is easy to cite directly.
+
+## 2026-03-23 - Cycle 19
+
+- Goal: Add another low-noise AWS-specific validity rule based on explicit EC2 security group semantics.
+- Candidates investigated:
+  - `awscx_security_group_all_protocol_nonzero_ports`
+  - `awscx_lb_listener_https_missing_certificate_arn`
+  - `awscx_sqs_queue_high_throughput_fifo_partial_settings`
+- Selected candidate:
+  - `awscx_security_group_all_protocol_nonzero_ports`
+- Why selected:
+  - The EC2 API and provider documentation both make the all-protocol behavior explicit, so a nonzero port range with `protocol = "-1"` is misleading and high-signal.
+  - Detection is simple and low-noise because it only reports explicit inline security group rules where the port range contradicts the all-protocol semantics.
+  - The listener and SQS candidates are still interesting, but both need more judgment about advisory behavior and resource-mode differences.
+- Sources used:
+  - https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_IpPermission.html
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/security_group_rule.html.markdown
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/lb_listener.html.markdown
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/sqs_queue.html.markdown
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_security_group_all_protocol_nonzero_ports.go`
+  - `rules/aws_security_group_all_protocol_nonzero_ports_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `ERROR` rule that reports inline `aws_security_group` rules using `protocol = "-1"` with nonzero ports, which EC2 still interprets as an all-ports rule.
+- Follow-up ideas:
+  - Extend the same semantic check to `aws_security_group_rule` or the `aws_vpc_security_group_*_rule` resources if the repository wants broader SG coverage.
+  - Revisit the ALB/NLB listener certificate candidate only after reviewing protocol-specific requirements in more detail.
