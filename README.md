@@ -1,7 +1,6 @@
-# TFLint Ruleset Template
-[![Build Status](https://github.com/terraform-linters/tflint-ruleset-template/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/terraform-linters/tflint-ruleset-template/actions)
+# TFLint ruleset for terraform-provider-aws powered by Codex
 
-This is a template repository for building a custom ruleset. You can create a plugin repository from "Use this template". See also [Writing Plugins](https://github.com/terraform-linters/tflint/blob/master/docs/developer-guide/plugins.md).
+TFLint ruleset plugin for Terraform AWS Provider powered by Codex.
 
 ## Requirements
 
@@ -10,49 +9,21 @@ This is a template repository for building a custom ruleset. You can create a pl
 
 ## Installation
 
-TODO: This template repository does not contain release binaries, so this installation will not work. Please rewrite for your repository. See the "Building the plugin" section to get this template ruleset working.
+Run the following command:
 
-You can install the plugin with `tflint --init`. Declare a config in `.tflint.hcl` as follows:
+```shell
+make install
+```
 
-```hcl
-plugin "template" {
-  enabled = true
+Test the installed plugin behavior:
 
-  version = "0.1.0"
-  source  = "github.com/terraform-linters/tflint-ruleset-template"
-}
+```shell
+tflint
 ```
 
 ## Rules
 
 |Name|Description|Severity|Enabled|Link|
 | --- | --- | --- | --- | --- |
-|aws_instance_example_type|Example rule for accessing and evaluating top-level attributes|ERROR|✔||
-|aws_s3_bucket_example_lifecycle_rule|Example rule for accessing top-level/nested blocks and attributes under the blocks|ERROR|✔||
-|google_compute_ssl_policy|Example rule with a custom rule config|WARNING|✔||
-|terraform_backend_type|Example rule for accessing other than resources|ERROR|✔||
-
-## Building the plugin
-
-Clone the repository locally and run the following command:
-
-```
-$ make
-```
-
-You can easily install the built plugin with the following:
-
-```
-$ make install
-```
-
-You can run the built plugin like the following:
-
-```
-$ cat << EOS > .tflint.hcl
-plugin "template" {
-  enabled = true
-}
-EOS
-$ tflint
-```
+|awscx_dynamodb_table_invalid_stream_view_type|Disallow invalid `stream_view_type`|ERROR|✔||
+|awscx_security_group_invalid_protocol|Disallow invalid `protocol`|ERROR|✔||
