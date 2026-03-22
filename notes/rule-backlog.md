@@ -204,6 +204,30 @@ Copy this section for each rule candidate.
 - Implemented as `ERROR` because the configuration is incomplete when provisioned mode is selected without a throughput value.
 - The rule only checks the missing-attribute case and does not validate numeric limits, which may vary by Region and quota.
 
+## awscx_ebs_volume_missing_iops
+
+- Status: implemented
+- Resource(s): `aws_ebs_volume`
+- Short description: Require `iops` when `type = "io1"` or `type = "io2"`.
+- Why it matters: AWS requires an IOPS value for provisioned IOPS EBS volume types.
+- Detection approach: Evaluate `type` and report when it is explicitly `io1` or `io2` while `iops` is absent.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Focused validity check for a direct EBS API requirement.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateVolume.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ebs_volume
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Implemented as `ERROR` because the configuration is incomplete for provisioned IOPS volume types without an explicit IOPS value.
+- The rule does not validate the allowed numeric range for `iops`, which depends on volume type and instance support.
+
 ## Backlog Hygiene
 
 Prefer keeping this file concise and current.

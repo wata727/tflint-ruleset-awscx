@@ -263,3 +263,34 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Look for another low-noise validity rule in EFS or RDS to keep the ruleset balanced across services.
   - Revisit advisory candidates only if they can be narrowed to explicit high-signal configurations.
+
+## 2026-03-23 - Cycle 5
+
+- Goal: Continue adding non-advisory AWS validity rules with simple static detection.
+- Candidates investigated:
+  - `awscx_ebs_volume_missing_iops`
+  - `awscx_db_instance_publicly_accessible`
+  - `awscx_lb_missing_deletion_protection`
+- Selected candidate:
+  - `awscx_ebs_volume_missing_iops`
+- Why selected:
+  - AWS directly requires `iops` for EBS volume types `io1` and `io2`.
+  - The detection is explicit and does not depend on organization policy or runtime context.
+  - The alternative candidates were more policy-oriented and therefore less suitable for an always-on low-noise rule.
+- Sources used:
+  - https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateVolume.html
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ebs_volume
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_ebs_volume_missing_iops.go`
+  - `rules/aws_ebs_volume_missing_iops_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added an `ERROR` rule that reports `aws_ebs_volume` resources using `io1` or `io2` without `iops`.
+- Follow-up ideas:
+  - Explore another EBS or RDS rule where a required companion attribute is missing for a specific enum value.
+  - Revisit deletion protection only if the repository decides to add more policy-style warnings.
