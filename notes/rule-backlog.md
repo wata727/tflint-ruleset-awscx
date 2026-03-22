@@ -524,6 +524,30 @@ Copy this section for each rule candidate.
 - Implemented as a `WARNING` because the configuration still works in older provider versions, but it is explicitly deprecated and scheduled for removal.
 - The rule intentionally checks only explicit deprecated deployment-side stage management and does not try to infer whether a separate `aws_api_gateway_stage` resource should exist elsewhere in the module.
 
+## awscx_sqs_queue_fifo_name_suffix
+
+- Status: implemented
+- Resource(s): `aws_sqs_queue`
+- Short description: Require FIFO queue names to end with `.fifo`.
+- Why it matters: AWS requires FIFO queue names to use the `.fifo` suffix, so omitting it produces an invalid queue definition.
+- Detection approach: Evaluate `fifo_queue` and report when it is explicitly `true` while an explicit `name` does not end with `.fifo`.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Direct SQS API validity check; it intentionally skips `name_prefix` and omitted-name cases to avoid guessing the final generated queue name.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_CreateQueue.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sqs_queue
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Implemented as `ERROR` because FIFO queue creation requires the `.fifo` suffix.
+- The rule only checks explicit `name` values and does not attempt to infer suffixes from `name_prefix` or unknown expressions.
+
 ## Backlog Hygiene
 
 Prefer keeping this file concise and current.

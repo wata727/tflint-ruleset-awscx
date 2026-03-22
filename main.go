@@ -29,6 +29,7 @@ func main() {
 				rules.NewAwsS3BucketDeprecatedVersioningRule(),
 				rules.NewAwsS3BucketDeprecatedWebsiteRule(),
 				rules.NewAwsSecurityGroupInvalidProtocolRule(),
+				rules.NewAwsSQSQueueFIFONameSuffixRule(),
 			},
 		},
 	})

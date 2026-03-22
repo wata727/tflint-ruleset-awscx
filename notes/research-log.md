@@ -297,6 +297,37 @@ Each entry should be short, but should leave enough context for the next cycle t
   - Revisit `aws_s3_bucket_deprecated_logging` if the repository wants another narrowly scoped provider-upgrade warning.
   - Look for a non-deprecation EKS rule with similarly explicit detection, such as an invalid or contradictory attribute combination.
 
+## 2026-03-23 - Cycle 14
+
+- Goal: Add another low-noise AWS validity rule from primary documentation.
+- Candidates investigated:
+  - `awscx_sqs_queue_fifo_name_suffix`
+  - `awscx_sns_topic_fifo_name_suffix`
+  - `awscx_db_instance_storage_throughput_requires_gp3`
+- Selected candidate:
+  - `awscx_sqs_queue_fifo_name_suffix`
+- Why selected:
+  - AWS documents the `.fifo` suffix as a hard requirement for FIFO SQS queue names, making this a direct validity check rather than an opinionated best-practice rule.
+  - Detection is simple and low-noise because it only reports resources that explicitly set both `fifo_queue = true` and a non-compliant `name`.
+  - The SNS variant is similarly valid but slightly less common in Terraform codebases, while the RDS storage-throughput candidate would need more careful handling around adjacent storage constraints.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sqs_queue
+  - https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_CreateQueue.html
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_sqs_queue_fifo_name_suffix.go`
+  - `rules/aws_sqs_queue_fifo_name_suffix_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `ERROR` rule that reports `aws_sqs_queue` resources with `fifo_queue = true` whose explicit `name` does not end with `.fifo`.
+- Follow-up ideas:
+  - Revisit `awscx_sns_topic_fifo_name_suffix` as a sibling low-noise rule for SNS FIFO topics.
+  - Explore `aws_db_instance.storage_throughput` rules once the repository is ready to encode more provider-specific conditional constraints.
+
 ## 2026-03-23 - Cycle 10
 
 - Goal: Continue the loop with one more explicit, low-noise AWS provider deprecation rule.

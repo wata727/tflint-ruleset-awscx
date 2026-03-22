@@ -44,3 +44,4 @@ go test ./...
 |awscx_s3_bucket_deprecated_versioning|Warn on deprecated inline `versioning` on `aws_s3_bucket`|WARNING|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket|
 |awscx_s3_bucket_deprecated_website|Warn on deprecated inline `website` on `aws_s3_bucket`|WARNING|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket|
 |awscx_security_group_invalid_protocol|Disallow invalid `protocol`|ERROR|✔|https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_IpPermission.html|
+|awscx_sqs_queue_fifo_name_suffix|Require FIFO `aws_sqs_queue.name` values to end with `.fifo`|ERROR|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sqs_queue|
