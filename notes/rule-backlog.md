@@ -228,6 +228,30 @@ Copy this section for each rule candidate.
 - Implemented as `ERROR` because the configuration is incomplete for provisioned IOPS volume types without an explicit IOPS value.
 - The rule does not validate the allowed numeric range for `iops`, which depends on volume type and instance support.
 
+## awscx_db_instance_missing_iops
+
+- Status: implemented
+- Resource(s): `aws_db_instance`
+- Short description: Require `iops` when `storage_type = "io1"`, `storage_type = "io2"`, or `storage_type = "gp3"`.
+- Why it matters: RDS requires an explicit IOPS value for these storage types.
+- Detection approach: Evaluate `storage_type` and report when it is explicitly `io1`, `io2`, or `gp3` while `iops` is absent.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Direct RDS API validity check rather than an opinionated best-practice rule.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/goto/WebAPI/rds-2014-10-31/CreateDBInstance
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Implemented as `ERROR` because the configuration is incomplete when one of these storage types is selected without IOPS.
+- The rule intentionally does not validate engine-specific or size-specific IOPS ranges.
+
 ## Backlog Hygiene
 
 Prefer keeping this file concise and current.

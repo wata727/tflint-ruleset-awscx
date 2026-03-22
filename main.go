@@ -12,6 +12,7 @@ func main() {
 			Name:    "awscx",
 			Version: "0.1.0",
 			Rules: []tflint.Rule{
+				rules.NewAwsDBInstanceMissingIOPSRule(),
 				rules.NewAwsDynamoDBTableInvalidStreamViewTypeRule(),
 				rules.NewAwsEBSVolumeMissingIOPSRule(),
 				rules.NewAwsEFSFileSystemMissingProvisionedThroughputRule(),

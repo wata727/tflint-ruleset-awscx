@@ -294,3 +294,34 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Explore another EBS or RDS rule where a required companion attribute is missing for a specific enum value.
   - Revisit deletion protection only if the repository decides to add more policy-style warnings.
+
+## 2026-03-23 - Cycle 6
+
+- Goal: Extend low-noise required-companion-attribute checks into RDS.
+- Candidates investigated:
+  - `awscx_db_instance_missing_iops`
+  - `awscx_lb_missing_deletion_protection`
+  - `awscx_db_instance_publicly_accessible`
+- Selected candidate:
+  - `awscx_db_instance_missing_iops`
+- Why selected:
+  - The RDS API explicitly requires IOPS for storage types `io1`, `io2`, and `gp3`.
+  - The detection is straightforward and based on a provider-facing requirement instead of environment policy.
+  - The alternative candidates were more advisory and therefore less suitable as always-on checks.
+- Sources used:
+  - https://docs.aws.amazon.com/goto/WebAPI/rds-2014-10-31/CreateDBInstance
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_db_instance_missing_iops.go`
+  - `rules/aws_db_instance_missing_iops_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added an `ERROR` rule that reports `aws_db_instance` resources using `io1`, `io2`, or `gp3` storage without `iops`.
+- Follow-up ideas:
+  - Look for the next low-noise RDS or EC2 rule involving another required companion attribute.
+  - Keep deletion-protection-style warnings deferred unless they can be narrowed to very explicit unsafe configurations.
