@@ -132,6 +132,78 @@ Copy this section for each rule candidate.
 - Implemented as a `WARNING` to surface the provider deprecation without over-claiming that every existing bucket configuration is immediately invalid.
 - The rule intentionally checks only explicit inline `acl` usage and does not try to infer bucket age or object ownership settings.
 
+## awscx_s3_bucket_deprecated_versioning
+
+- Status: implemented
+- Resource(s): `aws_s3_bucket`
+- Short description: Warn when deprecated inline `versioning` is used on `aws_s3_bucket`.
+- Why it matters: The AWS provider deprecated inline bucket versioning management in favor of the standalone `aws_s3_bucket_versioning` resource, so continuing to configure it inline increases upgrade friction.
+- Detection approach: Flag any `versioning` block present on `aws_s3_bucket`.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Another provider deprecation rule in the S3 bucket split-resource family, but still narrowly scoped to explicit inline usage.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- HashiCorp docs: https://developer.hashicorp.com/validated-patterns/terraform/upgrade-terraform-provider
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_versioning
+- terraform-provider-aws issue/PR: https://github.com/hashicorp/terraform-provider-aws/issues/20433
+
+### Notes
+
+- Implemented as a `WARNING` because deprecated inline configuration can still exist in older modules while users migrate to the standalone versioning resource.
+- The rule intentionally reports only the presence of the inline block and does not try to validate the versioning settings themselves.
+
+## awscx_s3_bucket_deprecated_server_side_encryption_configuration
+
+- Status: deferred
+- Resource(s): `aws_s3_bucket`
+- Short description: Warn when deprecated inline `server_side_encryption_configuration` is used on `aws_s3_bucket`.
+- Why it matters: This is part of the same S3 bucket split-resource migration as inline versioning and would help users move to `aws_s3_bucket_server_side_encryption_configuration`.
+- Detection approach: Flag any `server_side_encryption_configuration` block present on `aws_s3_bucket`.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Very similar to the selected versioning candidate; deferred to avoid stacking multiple nearly identical S3 deprecation rules in one cycle.
+- Selected on:
+- Implemented on:
+
+### Sources
+
+- HashiCorp docs: https://developer.hashicorp.com/validated-patterns/terraform/upgrade-terraform-provider
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_server_side_encryption_configuration
+- terraform-provider-aws issue/PR: https://github.com/hashicorp/terraform-provider-aws/issues/20433
+
+### Notes
+
+- Good follow-up candidate if the repository continues to add provider deprecation checks around `aws_s3_bucket`.
+
+## awscx_db_instance_publicly_accessible
+
+- Status: deferred
+- Resource(s): `aws_db_instance`
+- Short description: Warn when `publicly_accessible = true` is set on an RDS instance.
+- Why it matters: Publicly reachable databases increase exposure risk when not strongly justified.
+- Detection approach: Flag an explicit `publicly_accessible = true`.
+- False-positive risk: medium
+- Implementation difficulty: low
+- Overlap notes: Security value is real, but deployment intent varies enough that it is noisier than the selected deprecation candidate.
+- Selected on:
+- Implemented on:
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_VPC.WorkingWithRDSInstanceinaVPC.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Deferred because the rule would encode a policy preference rather than a provider or AWS-side validity requirement.
+
 ## awscx_launch_template_imdsv2_optional_tokens
 
 - Status: implemented

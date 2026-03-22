@@ -19,6 +19,7 @@ func main() {
 				rules.NewAwsInstanceIMDSv2OptionalTokensRule(),
 				rules.NewAwsLaunchTemplateIMDSv2OptionalTokensRule(),
 				rules.NewAwsS3BucketDeprecatedACLRule(),
+				rules.NewAwsS3BucketDeprecatedVersioningRule(),
 				rules.NewAwsSecurityGroupInvalidProtocolRule(),
 			},
 		},

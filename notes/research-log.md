@@ -325,3 +325,36 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Look for the next low-noise RDS or EC2 rule involving another required companion attribute.
   - Keep deletion-protection-style warnings deferred unless they can be narrowed to very explicit unsafe configurations.
+
+## 2026-03-23 - Cycle 7
+
+- Goal: Add another low-noise AWS-specific rule without reusing the recent required-attribute pattern again.
+- Candidates investigated:
+  - `awscx_s3_bucket_deprecated_versioning`
+  - `awscx_s3_bucket_deprecated_server_side_encryption_configuration`
+  - `awscx_db_instance_publicly_accessible`
+- Selected candidate:
+  - `awscx_s3_bucket_deprecated_versioning`
+- Why selected:
+  - HashiCorp's AWS provider upgrade guidance explicitly moves bucket versioning management from inline `aws_s3_bucket.versioning` to `aws_s3_bucket_versioning`.
+  - Detection is simple and low-noise because it only reports explicit inline usage and does not infer security posture or module intent.
+  - The alternative S3 encryption candidate was almost identical in shape, so it was deferred to keep this change set focused; the RDS public-access candidate remained more policy-driven and therefore noisier.
+- Sources used:
+  - https://developer.hashicorp.com/validated-patterns/terraform/upgrade-terraform-provider
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_versioning
+  - https://github.com/hashicorp/terraform-provider-aws/issues/20433
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_s3_bucket_deprecated_versioning.go`
+  - `rules/aws_s3_bucket_deprecated_versioning_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `WARNING` rule that reports deprecated inline `versioning` blocks on `aws_s3_bucket` and directs users to `aws_s3_bucket_versioning`.
+- Follow-up ideas:
+  - Implement the sibling S3 deprecation rule for inline `server_side_encryption_configuration` if the repository wants another low-risk migration check next.
+  - Continue balancing deprecation rules with direct AWS validity checks in other services.
