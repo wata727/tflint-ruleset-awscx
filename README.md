@@ -33,6 +33,7 @@ go test ./...
 |awscx_db_instance_storage_throughput_non_gp3|Disallow `storage_throughput` unless `storage_type` is `gp3`|ERROR|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance|
 |awscx_ebs_volume_missing_iops|Require `iops` when `type` is `io1` or `io2`|ERROR|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ebs_volume|
 |awscx_ebs_volume_throughput_non_gp3|Disallow `throughput` unless `type` is `gp3`|ERROR|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ebs_volume|
+|awscx_eip_instance_network_interface_conflict|Disallow setting both `instance` and `network_interface` on `aws_eip`|ERROR|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eip|
 |awscx_dynamodb_table_invalid_stream_view_type|Disallow invalid `stream_view_type`|ERROR|✔|https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_StreamSpecification.html|
 |awscx_eks_addon_deprecated_resolve_conflicts|Warn on deprecated `resolve_conflicts` on `aws_eks_addon`|WARNING|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eks_addon|
 |awscx_efs_file_system_missing_provisioned_throughput|Require `provisioned_throughput_in_mibps` when `throughput_mode` is `provisioned`|ERROR|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/efs_file_system|

@@ -643,6 +643,30 @@ Copy this section for each rule candidate.
 - Implemented as `ERROR` because FIFO queue creation requires the `.fifo` suffix.
 - The rule only checks explicit `name` values and does not attempt to infer suffixes from `name_prefix` or unknown expressions.
 
+## awscx_eip_instance_network_interface_conflict
+
+- Status: implemented
+- Resource(s): `aws_eip`
+- Short description: Disallow setting both `instance` and `network_interface` on `aws_eip`.
+- Why it matters: The provider documentation and EC2 AssociateAddress API both state that an Elastic IP association must target either an instance or a network interface, but not both.
+- Detection approach: Report when an `aws_eip` resource explicitly sets both `instance` and `network_interface`.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Direct API-validity check with no cross-resource inference or environment-specific policy assumptions.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eip
+- Raw provider docs: https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/eip.html.markdown
+- AWS docs: https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_AssociateAddress.html
+
+### Notes
+
+- Implemented as `ERROR` because the combination is documented as invalid and can lead to undefined behavior rather than a style preference.
+- The rule only checks explicit co-presence of the two arguments and does not attempt to validate the referenced resources.
+
 ## Backlog Hygiene
 
 Prefer keeping this file concise and current.

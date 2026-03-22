@@ -819,3 +819,38 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Implement the converse EFS throughput rule if the repository wants another explicit invalid-combination check next.
   - Revisit the EBS Multi-Attach candidate with OS-sensitive wording or tighter Terraform-side scope.
+
+## 2026-03-23 - Cycle 18
+
+- Goal: Add another low-noise AWS-specific validity rule grounded in provider and AWS API association semantics.
+- Candidates investigated:
+  - `awscx_eip_instance_network_interface_conflict`
+  - `awscx_launch_template_security_group_names`
+  - `awscx_eip_deprecated_vpc`
+- Selected candidate:
+  - `awscx_eip_instance_network_interface_conflict`
+- Why selected:
+  - The provider documentation explicitly says `aws_eip` can use either `instance` or `network_interface`, but not both, and the EC2 AssociateAddress API repeats the same constraint.
+  - Detection is simple and low-noise because the rule only looks for explicit co-presence of two attributes on the same resource block.
+  - The launch template and deprecated `vpc` candidates are still useful, but both are more advisory and therefore better suited to `WARNING` rules in a later cycle.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eip
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/eip.html.markdown
+  - https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_AssociateAddress.html
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/launch_template
+  - https://github.com/hashicorp/terraform-provider-aws/issues/30295
+  - https://github.com/terraform-aws-modules/terraform-aws-vpc/issues/943
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_eip_instance_network_interface_conflict.go`
+  - `rules/aws_eip_instance_network_interface_conflict_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `ERROR` rule that reports `aws_eip` resources configured with both `instance` and `network_interface`.
+- Follow-up ideas:
+  - Add a narrower advisory rule around `aws_launch_template.security_group_names` if the repository wants another EC2 modernization warning.
+  - Revisit `aws_eip.vpc` only if a stable primary-source provider reference for the deprecation is easy to cite directly.

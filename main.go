@@ -19,6 +19,7 @@ func main() {
 				rules.NewAwsDynamoDBTableInvalidStreamViewTypeRule(),
 				rules.NewAwsEBSVolumeMissingIOPSRule(),
 				rules.NewAwsEBSVolumeThroughputNonGP3Rule(),
+				rules.NewAwsEIPInstanceNetworkInterfaceConflictRule(),
 				rules.NewAwsEKSAddonDeprecatedResolveConflictsRule(),
 				rules.NewAwsEFSFileSystemMissingProvisionedThroughputRule(),
 				rules.NewAwsInstanceDeprecatedNetworkInterfaceRule(),
