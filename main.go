@@ -27,6 +27,7 @@ func main() {
 				rules.NewAwsS3BucketDeprecatedReplicationConfigurationRule(),
 				rules.NewAwsS3BucketDeprecatedServerSideEncryptionConfigurationRule(),
 				rules.NewAwsS3BucketDeprecatedVersioningRule(),
+				rules.NewAwsS3BucketDeprecatedWebsiteRule(),
 				rules.NewAwsSecurityGroupInvalidProtocolRule(),
 			},
 		},

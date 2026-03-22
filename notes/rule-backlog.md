@@ -259,6 +259,31 @@ Copy this section for each rule candidate.
 - Implemented as a `WARNING` because deprecated inline configuration can still exist in older modules while users migrate to the standalone replication configuration resource.
 - The rule intentionally reports only the presence of the inline block and does not attempt to validate replication sub-block semantics.
 
+## awscx_s3_bucket_deprecated_website
+
+- Status: implemented
+- Resource(s): `aws_s3_bucket`
+- Short description: Warn when deprecated inline `website` is used on `aws_s3_bucket`.
+- Why it matters: The provider moved static website configuration management to `aws_s3_bucket_website_configuration`, so keeping website settings inline adds upgrade friction and diverges from the current resource model.
+- Detection approach: Flag any `website` block present on `aws_s3_bucket`.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Another S3 split-resource deprecation rule, but still narrowly scoped to explicit inline usage with a single replacement resource.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/AmazonS3/latest/userguide/WebsiteHosting.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_website_configuration
+- terraform-provider-aws issue/PR: https://github.com/hashicorp/terraform-provider-aws/issues/20433
+
+### Notes
+
+- Implemented as a `WARNING` because deprecated inline website configuration can still exist in older modules while users migrate to the standalone website configuration resource.
+- The rule intentionally reports only the presence of the inline block and does not attempt to validate website sub-block semantics.
+
 ## awscx_db_instance_publicly_accessible
 
 - Status: deferred

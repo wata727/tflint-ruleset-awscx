@@ -290,7 +290,7 @@ Each entry should be short, but should leave enough context for the next cycle t
   - `notes/rule-backlog.md`
   - `notes/research-log.md`
 - Tests run:
-  - pending
+  - `go test ./...`
 - Result:
   - Added a new `WARNING` rule that reports deprecated `resolve_conflicts` usage on `aws_eks_addon` and points users to the split create/update attributes.
 - Follow-up ideas:
@@ -330,6 +330,40 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Revisit `cors_rule`, `website`, and `grant` if the next cycle still favors low-risk migration checks.
   - Prefer a non-S3 validation rule in a later cycle if a similarly explicit AWS/provider requirement is available.
+
+## 2026-03-23 - Cycle 11
+
+- Goal: Continue the loop with another explicit S3 bucket deprecation rule that has a single migration target.
+- Candidates investigated:
+  - `awscx_s3_bucket_deprecated_website`
+  - `awscx_s3_bucket_deprecated_cors_rule`
+  - `awscx_s3_bucket_deprecated_grant`
+  - `awscx_db_instance_publicly_accessible`
+- Selected candidate:
+  - `awscx_s3_bucket_deprecated_website`
+- Why selected:
+  - The `aws_s3_bucket` documentation explicitly marks the inline `website` block as deprecated and points users to `aws_s3_bucket_website_configuration`.
+  - Detection is low-noise because it only reports an explicitly configured inline block.
+  - Compared with `cors_rule` and `grant`, the replacement resource is straightforward and the static website use case is common enough to justify a dedicated migration warning.
+- Sources used:
+  - https://docs.aws.amazon.com/AmazonS3/latest/userguide/WebsiteHosting.html
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_website_configuration
+  - https://github.com/hashicorp/terraform-provider-aws/issues/20433
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_s3_bucket_deprecated_website.go`
+  - `rules/aws_s3_bucket_deprecated_website_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - pending
+- Result:
+  - Added a new `WARNING` rule that reports deprecated inline `website` blocks on `aws_s3_bucket` and directs users to `aws_s3_bucket_website_configuration`.
+- Follow-up ideas:
+  - Revisit `cors_rule` and `grant` if the next cycle still favors low-risk S3 migration checks.
+  - Prefer a non-S3 candidate next if a comparably explicit AWS/provider validation rule can be identified.
 
 ## 2026-03-23 - Cycle 13
 
