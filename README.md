@@ -27,6 +27,7 @@ go test ./...
 
 |Name|Description|Severity|Enabled|Link|
 | --- | --- | --- | --- | --- |
+|awscx_api_gateway_deployment_deprecated_stage_management|Warn on deprecated stage management fields on `aws_api_gateway_deployment`|WARNING|✔|https://github.com/hashicorp/terraform-provider-aws/issues/39957|
 |awscx_db_instance_missing_iops|Require `iops` when `storage_type` is `io1`, `io2`, or `gp3`|ERROR|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance|
 |awscx_ebs_volume_missing_iops|Require `iops` when `type` is `io1` or `io2`|ERROR|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ebs_volume|
 |awscx_dynamodb_table_invalid_stream_view_type|Disallow invalid `stream_view_type`|ERROR|✔|https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_StreamSpecification.html|

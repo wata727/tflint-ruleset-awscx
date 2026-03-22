@@ -297,6 +297,39 @@ Each entry should be short, but should leave enough context for the next cycle t
   - Revisit `aws_s3_bucket_deprecated_logging` if the repository wants another narrowly scoped provider-upgrade warning.
   - Look for a non-deprecation EKS rule with similarly explicit detection, such as an invalid or contradictory attribute combination.
 
+## 2026-03-23 - Cycle 13
+
+- Goal: Continue the loop with a non-S3, low-noise AWS/provider-specific rule.
+- Candidates investigated:
+  - `awscx_api_gateway_deployment_deprecated_stage_management`
+  - `awscx_eip_deprecated_vpc`
+  - `awscx_lb_listener_invalid_mutual_authentication`
+- Selected candidate:
+  - `awscx_api_gateway_deployment_deprecated_stage_management`
+- Why selected:
+  - The AWS provider explicitly deprecated `stage_name`, `stage_description`, and `canary_settings` on `aws_api_gateway_deployment`, with a clear migration path to `aws_api_gateway_stage`.
+  - AWS documentation models deployments and stages as separate resources, so the rule aligns with both provider direction and service concepts.
+  - The alternatives were weaker for this repository cycle: `aws_eip.vpc` is another narrow deprecation but lower practical value, and ALB mutual-auth validation would require more nuanced static semantics with higher false-positive risk.
+- Sources used:
+  - https://github.com/hashicorp/terraform-provider-aws/issues/39957
+  - https://github.com/hashicorp/terraform-provider-aws/issues/39958
+  - https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-deployments.html
+  - https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-stages.html
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_api_gateway_deployment_deprecated_stage_management.go`
+  - `rules/aws_api_gateway_deployment_deprecated_stage_management_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `WARNING` rule that reports deprecated stage-management fields on `aws_api_gateway_deployment` and directs users to `aws_api_gateway_stage`.
+- Follow-up ideas:
+  - Revisit `awscx_eip_deprecated_vpc` if the repository wants another small migration warning next.
+  - Look for a direct API Gateway validity rule after this deprecation cleanup, but keep detection limited to explicit contradictory configuration.
+
 ## 2026-03-23 - Cycle 12
 
 - Goal: Continue the implementation loop with a high-value, low-noise AWS provider migration rule.

@@ -473,6 +473,31 @@ Copy this section for each rule candidate.
 - Implemented as a `WARNING` because the configuration is deprecated and obsolete, but older modules may still carry the block during migration.
 - The rule intentionally checks only explicit launch template usage and does not try to infer replacement behavior for other EC2 resources.
 
+## awscx_api_gateway_deployment_deprecated_stage_management
+
+- Status: implemented
+- Resource(s): `aws_api_gateway_deployment`
+- Short description: Warn when deprecated stage-management fields are used on `aws_api_gateway_deployment`.
+- Why it matters: The AWS provider deprecated `stage_name`, `stage_description`, and `canary_settings` because they implicitly create or modify stages from the deployment resource, which is confusing and will be removed in a future provider version.
+- Detection approach: Report explicit use of `stage_name`, `stage_description`, or `canary_settings` on `aws_api_gateway_deployment`.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Narrow provider-deprecation coverage for API Gateway; it avoids broader API Gateway policy checks that would need more context.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- Terraform provider issue: https://github.com/hashicorp/terraform-provider-aws/issues/39957
+- Terraform provider issue: https://github.com/hashicorp/terraform-provider-aws/issues/39958
+- AWS docs: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-deployments.html
+- AWS docs: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-stages.html
+
+### Notes
+
+- Implemented as a `WARNING` because the configuration still works in older provider versions, but it is explicitly deprecated and scheduled for removal.
+- The rule intentionally checks only explicit deprecated deployment-side stage management and does not try to infer whether a separate `aws_api_gateway_stage` resource should exist elsewhere in the module.
+
 ## Backlog Hygiene
 
 Prefer keeping this file concise and current.
