@@ -200,3 +200,35 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Consider the same explicit-optional IMDS check for `aws_instance` if the repository wants parallel coverage outside launch templates.
   - Look for another low-noise rule around deprecated or invalid enum-style values in EC2 and RDS resources.
+
+## 2026-03-23 - Cycle 3
+
+- Goal: Extend low-noise IMDSv2 coverage to another common EC2 resource.
+- Candidates investigated:
+  - `awscx_instance_imdsv2_optional_tokens`
+  - `awscx_db_instance_publicly_accessible`
+  - `awscx_efs_file_system_missing_provisioned_throughput`
+- Selected candidate:
+  - `awscx_instance_imdsv2_optional_tokens`
+- Why selected:
+  - It reuses the same AWS guidance as the launch-template rule but covers direct `aws_instance` usage, which is still common in smaller modules and examples.
+  - The explicit `"optional"` trigger remains low-noise and avoids guessing about account defaults or omitted configuration.
+  - The alternative candidates were either more environment-dependent or needed deeper schema-specific validation logic.
+- Sources used:
+  - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-IMDS-new-instances.html
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance
+  - https://github.com/hashicorp/terraform-provider-aws/issues/10949
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_instance_imdsv2_optional_tokens.go`
+  - `rules/aws_instance_imdsv2_optional_tokens_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `WARNING` rule that reports `aws_instance` resources explicitly configured with `metadata_options.http_tokens = "optional"`.
+- Follow-up ideas:
+  - Look for a non-IMDS candidate next to keep the ruleset balanced across AWS services.
+  - Explore simple enum or deprecated-argument checks in RDS, EFS, and EC2 resources.

@@ -156,6 +156,30 @@ Copy this section for each rule candidate.
 - Implemented as a `WARNING` because some environments may intentionally retain IMDSv1 compatibility for older software.
 - The rule does not flag omitted `metadata_options`, because account-level IMDS defaults and AMI configuration can make omission safe.
 
+## awscx_instance_imdsv2_optional_tokens
+
+- Status: implemented
+- Resource(s): `aws_instance`
+- Short description: Warn when `metadata_options.http_tokens = "optional"` explicitly allows IMDSv1.
+- Why it matters: AWS recommends requiring IMDSv2 for new instances, and `aws_instance` is a common direct entry point for EC2 configuration.
+- Detection approach: Inspect `metadata_options.http_tokens` on `aws_instance` and report only the explicit `"optional"` setting.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Parallel coverage for direct EC2 instances; kept narrow for the same reasons as the launch-template rule.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-IMDS-new-instances.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance
+- terraform-provider-aws issue/PR: https://github.com/hashicorp/terraform-provider-aws/issues/10949
+
+### Notes
+
+- Implemented as a `WARNING` because some environments may still depend on IMDSv1 compatibility during migration.
+- The rule does not flag omitted `metadata_options`, because account-level defaults can already require IMDSv2.
+
 ## Backlog Hygiene
 
 Prefer keeping this file concise and current.
