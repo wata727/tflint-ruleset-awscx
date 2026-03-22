@@ -107,28 +107,29 @@ Copy this section for each rule candidate.
 - Implemented as an `ERROR` because the provider documents this as an invalid attribute combination rather than a best-practice recommendation.
 - The rule intentionally skips ambiguous `storage_type` expressions and only reports explicit non-`gp3` values or omitted `storage_type`.
 
-## awscx_db_instance_dedicated_log_volume_without_provisioned_iops
+## awscx_db_instance_dedicated_log_volume_non_io1_io2
 
-- Status: deferred
+- Status: implemented
 - Resource(s): `aws_db_instance`
-- Short description: Require a Provisioned IOPS storage type when `dedicated_log_volume = true`.
-- Why it matters: The provider docs say dedicated log volume requires Provisioned IOPS.
-- Detection approach: Evaluate `dedicated_log_volume` and `storage_type`, then report when the value is true and the storage type is clearly incompatible.
-- False-positive risk: medium
+- Short description: Disallow `dedicated_log_volume` unless `storage_type` is `io1` or `io2`.
+- Why it matters: The provider docs require dedicated log volumes to use Provisioned IOPS storage, which maps to `io1` or `io2` in Terraform.
+- Detection approach: Evaluate `dedicated_log_volume` and report when it is explicitly `true` while `storage_type` is omitted or clearly not `io1`/`io2`.
+- False-positive risk: low
 - Implementation difficulty: low
-- Overlap notes: Promising, but the exact accepted storage-type set should be verified before implementation to avoid over-claiming.
-- Selected on:
-- Implemented on:
+- Overlap notes: Complements the existing RDS storage validity rules with another explicit provider-side attribute constraint.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
 
 ### Sources
 
-- AWS docs: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_PIOPS.StorageTypes.html#USER_PIOPS.dlv
+- AWS docs: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_PIOPS.StorageTypes.html
 - Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance
 - terraform-provider-aws issue/PR:
 
 ### Notes
 
-- Deferred because "Provisioned IOPS" needs a tighter mapping to Terraform `storage_type` values before turning it into a lint error.
+- Implemented as `ERROR` because the provider documents this as an invalid storage-type combination rather than a best-practice recommendation.
+- The rule intentionally reports only explicit `dedicated_log_volume = true` values and skips unknown expressions.
 
 ## awscx_dynamodb_table_invalid_stream_view_type
 

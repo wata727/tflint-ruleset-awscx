@@ -787,3 +787,35 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Revisit `aws_s3_bucket_deprecated_logging` if the repository wants another narrowly scoped provider-upgrade warning.
   - Look for a non-deprecation EKS rule with similarly explicit detection, such as an invalid or contradictory attribute combination.
+
+## 2026-03-23 - Cycle 17
+
+- Goal: Add another low-noise AWS-specific rule with a clear provider-documented invalid attribute combination.
+- Candidates investigated:
+  - `awscx_db_instance_dedicated_log_volume_non_io1_io2`
+  - `awscx_efs_file_system_provisioned_throughput_non_provisioned_mode`
+  - `awscx_ebs_volume_multi_attach_non_io1_io2`
+- Selected candidate:
+  - `awscx_db_instance_dedicated_log_volume_non_io1_io2`
+- Why selected:
+  - The provider documentation explicitly states that `dedicated_log_volume` requires Provisioned IOPS storage, and Terraform `storage_type` maps that requirement directly to `io1` or `io2`.
+  - Detection is straightforward and low-noise because it only reports explicit `dedicated_log_volume = true` with an omitted or incompatible `storage_type`.
+  - The EFS candidate is also valid but is a close sibling of an existing EFS rule, while the EBS Multi-Attach candidate needs a little more care because Windows support differs between `io1` and `io2`.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/db_instance.html.markdown
+  - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_PIOPS.StorageTypes.html
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_db_instance_dedicated_log_volume_non_io1_io2.go`
+  - `rules/aws_db_instance_dedicated_log_volume_non_io1_io2_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `ERROR` rule that reports `aws_db_instance` resources using `dedicated_log_volume = true` without an explicit `io1` or `io2` storage type.
+- Follow-up ideas:
+  - Implement the converse EFS throughput rule if the repository wants another explicit invalid-combination check next.
+  - Revisit the EBS Multi-Attach candidate with OS-sensitive wording or tighter Terraform-side scope.
