@@ -3,7 +3,7 @@ name: build
 on:
   push:
     branches:
-      - main
+      - do-not-run
   pull_request:
     branches:
       - main
