@@ -69,7 +69,7 @@ Each entry should be short, but should leave enough context for the next cycle t
   - `notes/rule-backlog.md`
   - `notes/research-log.md`
 - Tests run:
-  - pending
+  - `go test ./...`
 - Result:
   - Repository guidance now points at `go test ./...` as the minimum verification step, avoids forcing direct pushes to `main`, and keeps source URLs with the implemented rules.
 - Follow-up ideas:
@@ -296,6 +296,40 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Revisit `aws_s3_bucket_deprecated_logging` if the repository wants another narrowly scoped provider-upgrade warning.
   - Look for a non-deprecation EKS rule with similarly explicit detection, such as an invalid or contradictory attribute combination.
+
+## 2026-03-23 - Cycle 10
+
+- Goal: Continue the loop with one more explicit, low-noise AWS provider deprecation rule.
+- Candidates investigated:
+  - `awscx_s3_bucket_deprecated_replication_configuration`
+  - `awscx_s3_bucket_deprecated_cors_rule`
+  - `awscx_s3_bucket_deprecated_website`
+  - `awscx_s3_bucket_deprecated_grant`
+- Selected candidate:
+  - `awscx_s3_bucket_deprecated_replication_configuration`
+- Why selected:
+  - The `aws_s3_bucket` documentation explicitly marks `replication_configuration` as deprecated and points to a single replacement resource.
+  - Detection is low-noise because it only reports an explicitly configured inline block.
+  - Compared with `cors_rule`, `website`, and `grant`, replication configuration is a higher-value setting to migrate cleanly while retaining the same simple implementation shape.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_replication_configuration
+  - https://github.com/hashicorp/terraform-provider-aws/issues/20433
+  - https://www.hashicorp.com/blog/terraform-aws-provider-4-0-refactors-s3-bucket-resource
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_s3_bucket_deprecated_replication_configuration.go`
+  - `rules/aws_s3_bucket_deprecated_replication_configuration_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - pending
+- Result:
+  - Added a new `WARNING` rule that reports deprecated inline `replication_configuration` blocks on `aws_s3_bucket` and directs users to `aws_s3_bucket_replication_configuration`.
+- Follow-up ideas:
+  - Revisit `cors_rule`, `website`, and `grant` if the next cycle still favors low-risk migration checks.
+  - Prefer a non-S3 validation rule in a later cycle if a similarly explicit AWS/provider requirement is available.
 
 ## 2026-03-23 - Cycle 13
 

@@ -235,16 +235,16 @@ Copy this section for each rule candidate.
 
 ## awscx_s3_bucket_deprecated_replication_configuration
 
-- Status: deferred
+- Status: implemented
 - Resource(s): `aws_s3_bucket`
 - Short description: Warn when deprecated inline `replication_configuration` is used on `aws_s3_bucket`.
 - Why it matters: The provider moved S3 bucket replication management to `aws_s3_bucket_replication_configuration`, so inline configuration increases upgrade friction.
 - Detection approach: Flag any `replication_configuration` block present on `aws_s3_bucket`.
 - False-positive risk: low
 - Implementation difficulty: low
-- Overlap notes: Very similar to the implemented S3 split-resource deprecation rules; deferred only to avoid stacking multiple near-identical warnings in one cycle.
-- Selected on:
-- Implemented on:
+- Overlap notes: Another S3 split-resource deprecation rule, but still narrowly scoped to explicit inline usage with a single replacement resource.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
 
 ### Sources
 
@@ -256,7 +256,8 @@ Copy this section for each rule candidate.
 
 ### Notes
 
-- Deferred because `lifecycle_rule` looked slightly more common and equally low-risk for the current cycle.
+- Implemented as a `WARNING` because deprecated inline configuration can still exist in older modules while users migrate to the standalone replication configuration resource.
+- The rule intentionally reports only the presence of the inline block and does not attempt to validate replication sub-block semantics.
 
 ## awscx_db_instance_publicly_accessible
 
