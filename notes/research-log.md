@@ -1094,3 +1094,35 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Explore whether another listener companion rule around `alpn_policy` can be justified from equally explicit provider requirements.
   - Prefer a non-ELB candidate in the next cycle to keep service coverage balanced.
+
+## 2026-03-23 - Cycle 24
+
+- Goal: Add a low-noise CloudWatch Logs rule grounded in explicit `DELIVERY` log group behavior.
+- Candidates investigated:
+  - `awscx_cloudwatch_log_group_delivery_retention_in_days`
+  - `awscx_lb_listener_alpn_policy_non_tls`
+  - `awscx_rds_cluster_instance_monitoring_role_without_interval`
+- Selected candidate:
+  - `awscx_cloudwatch_log_group_delivery_retention_in_days`
+- Why selected:
+  - The provider documentation explicitly says `retention_in_days` is ignored and forced to 2 days when `log_group_class = "DELIVERY"`, which makes the rule easy to justify and low-noise.
+  - Provider issue `#42657` shows the same configuration can also trigger `PutRetentionPolicy` and `DeleteRetentionPolicy` apply failures, so the lint catches a practical workflow problem rather than just stylistic drift.
+  - The alternative candidates were viable but either overlapped existing `aws_lb_listener` coverage or needed more provider-behavior confirmation to keep false positives low.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group
+  - https://github.com/hashicorp/terraform-provider-aws/issues/42657
+  - https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/WhatIsCloudWatchLogs.html
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_cloudwatch_log_group_delivery_retention_in_days.go`
+  - `rules/aws_cloudwatch_log_group_delivery_retention_in_days_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `WARNING` rule that reports `retention_in_days` on `aws_cloudwatch_log_group` resources explicitly configured with `log_group_class = "DELIVERY"`.
+- Follow-up ideas:
+  - Revisit `aws_lb_listener` argument-to-protocol dependency rules if the repository wants denser ELB coverage.
+  - Explore more low-noise CloudWatch Logs rules around class-specific argument restrictions.

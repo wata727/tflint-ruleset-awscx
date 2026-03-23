@@ -28,6 +28,7 @@ go test ./...
 |Name|Description|Severity|Enabled|Link|
 | --- | --- | --- | --- | --- |
 |awscx_api_gateway_deployment_deprecated_stage_management|Warn on deprecated stage management fields on `aws_api_gateway_deployment`|WARNING|✔|https://github.com/hashicorp/terraform-provider-aws/issues/39957|
+|awscx_cloudwatch_log_group_delivery_retention_in_days|Warn when `retention_in_days` is set on `aws_cloudwatch_log_group` with `log_group_class = "DELIVERY"`|WARNING|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group|
 |awscx_db_instance_dedicated_log_volume_non_io1_io2|Disallow `dedicated_log_volume` unless `storage_type` is `io1` or `io2`|ERROR|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance|
 |awscx_db_instance_manage_master_user_password_conflict|Disallow `password` and `password_wo` when `manage_master_user_password = true`|ERROR|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance|
 |awscx_db_instance_performance_insights_arguments_without_enabled|Disallow Performance Insights KMS or retention arguments unless `performance_insights_enabled = true`|ERROR|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance|

@@ -60,6 +60,29 @@ Copy this section for each rule candidate.
 
 ## Candidates
 
+## awscx_cloudwatch_log_group_delivery_retention_in_days
+
+- Status: implemented
+- Resource(s): `aws_cloudwatch_log_group`
+- Short description: Warn when `retention_in_days` is set together with `log_group_class = "DELIVERY"`.
+- Why it matters: The provider documentation states that `retention_in_days` is ignored for `DELIVERY` log groups and CloudWatch Logs forces retention to 2 days, so keeping the argument in configuration creates misleading intent and can contribute to provider-side failures around delivery-class usage.
+- Detection approach: Evaluate `log_group_class` and report when it resolves to `DELIVERY` while `retention_in_days` is explicitly configured.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Adds CloudWatch Logs coverage for a recent provider-specific edge case without overlapping existing EC2, RDS, or S3 rules.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/WhatIsCloudWatchLogs.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group
+- terraform-provider-aws issue/PR: https://github.com/hashicorp/terraform-provider-aws/issues/42657
+
+### Notes
+
+- Implemented as a `WARNING` because the configuration is misleading and can cause drift or provider trouble, but the provider documentation describes the argument as ignored rather than as a hard validation error.
+
 ## awscx_lb_listener_missing_certificate_arn
 
 - Status: implemented

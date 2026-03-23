@@ -13,6 +13,7 @@ func main() {
 			Version: "0.1.0",
 			Rules: []tflint.Rule{
 				rules.NewAwsAPIGatewayDeploymentDeprecatedStageManagementRule(),
+				rules.NewAwsCloudWatchLogGroupDeliveryRetentionInDaysRule(),
 				rules.NewAwsDBInstanceDedicatedLogVolumeNonIO1IO2Rule(),
 				rules.NewAwsDBInstanceManageMasterUserPasswordConflictRule(),
 				rules.NewAwsDBInstancePerformanceInsightsArgumentsWithoutEnabledRule(),
