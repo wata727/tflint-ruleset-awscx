@@ -1245,6 +1245,33 @@ Copy this section for each rule candidate.
 - Implemented as `WARNING` because this is deprecation and service-retirement guidance rather than a new static provider validation error.
 - The rule only reports explicit launch template blocks and does not try to infer behavior from other EC2 or ECS resources.
 
+## awscx_sns_topic_fifo_attributes_without_fifo_topic
+
+- Status: implemented
+- Resource(s): `aws_sns_topic`
+- Short description: Disallow FIFO-only SNS topic attributes unless `fifo_topic = true`.
+- Why it matters: The provider documentation scopes `archive_policy`, `content_based_deduplication`, and `fifo_throughput_scope` to FIFO topics, so setting them on a standard topic is a concrete configuration mistake or misleading no-op.
+- Detection approach: Report each explicit FIFO-only attribute when `fifo_topic` is omitted or explicitly `false`, and skip unknown expressions to avoid speculative issues.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Complements the existing SNS FIFO name suffix rule with top-level attribute applicability checks on the same resource type.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/sns/latest/dg/fifo-message-dedup.html
+- AWS docs: https://docs.aws.amazon.com/sns/latest/dg/message-archiving-and-replay-topic-owner.html
+- AWS docs: https://docs.aws.amazon.com/sns/latest/dg/fifo-high-throughput.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic
+- Raw provider docs: https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/sns_topic.html.markdown
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Implemented as `ERROR` because the flagged attributes are documented as FIFO-topic settings rather than advisory best practices.
+- The rule intentionally reports each attribute separately so the invalid configuration is obvious when multiple FIFO-only settings appear together.
+
 ## Backlog Hygiene
 
 Prefer keeping this file concise and current.

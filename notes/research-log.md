@@ -1492,3 +1492,37 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Revisit `awscx_lb_target_group_lambda_top_level_attributes` for another low-noise applicability rule.
   - Consider an `aws_spot_instance_request` deprecation or legacy-usage rule if it can be grounded in current provider documentation.
+
+## 2026-03-23 - Cycle 35
+
+- Goal: Add another low-noise FIFO applicability rule grounded in current SNS provider and AWS documentation.
+- Candidates investigated:
+  - `awscx_sns_topic_fifo_attributes_without_fifo_topic`
+  - `awscx_sqs_queue_high_throughput_fifo_requirements`
+  - `awscx_lb_listener_authenticate_action_non_https`
+- Selected candidate:
+  - `awscx_sns_topic_fifo_attributes_without_fifo_topic`
+- Why selected:
+  - The provider documentation explicitly scopes `archive_policy`, `content_based_deduplication`, and `fifo_throughput_scope` to FIFO topics, so the rule stays in direct argument-applicability territory.
+  - Detection is simple and low-noise because it only reports explicit FIFO-only attributes and can rely on the documented `fifo_topic = false` default when the flag is omitted.
+  - The SQS candidate was still useful but more advisory because high-throughput settings can degrade to normal throughput, while the ALB authentication candidate needed deeper nested analysis and conflicted with the provider's own examples.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/sns_topic.html.markdown
+  - https://docs.aws.amazon.com/sns/latest/dg/fifo-message-dedup.html
+  - https://docs.aws.amazon.com/sns/latest/dg/message-archiving-and-replay-topic-owner.html
+  - https://docs.aws.amazon.com/sns/latest/dg/fifo-high-throughput.html
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_sns_topic_fifo_attributes_without_fifo_topic.go`
+  - `rules/aws_sns_topic_fifo_attributes_without_fifo_topic_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `ERROR` rule that reports `archive_policy`, `content_based_deduplication`, and `fifo_throughput_scope` when they are configured without `fifo_topic = true` on `aws_sns_topic`.
+- Follow-up ideas:
+  - Revisit the SQS high-throughput FIFO setting combination as a possible `WARNING` rule if it can be framed around misleading partial enablement.
+  - Return to ALB authenticate action applicability only if a single, unambiguous provider or AWS source replaces the current mixed examples.
