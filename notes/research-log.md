@@ -24,6 +24,39 @@ Each entry should be short, but should leave enough context for the next cycle t
   - 
 ```
 
+## 2026-03-23 - Cycle 46
+
+- Goal: Add one more low-noise ECS validity rule with a direct unsupported configuration combination.
+- Candidates investigated:
+  - `awscx_ecs_service_daemon_fargate_launch_type`
+  - `awscx_ecs_service_desired_count_daemon`
+  - `awscx_route53_record_alias_ttl_records_conflict`
+- Selected candidate:
+  - `awscx_ecs_service_daemon_fargate_launch_type`
+- Why selected:
+  - The provider documentation explicitly points to AWS API semantics that Fargate tasks do not support the `DAEMON` scheduling strategy, making this a concrete invalid combination rather than a best-practice opinion.
+  - Detection is conservative and low-noise because it only fires when both `launch_type` and `scheduling_strategy` are explicitly known.
+  - The `desired_count` candidate was weaker because AWS documents it as optional for daemon services, while the Route 53 candidate overlaps more with existing schema-level conflicts.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_service
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/ecs_service.html.markdown
+  - https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service_definition_parameters.html
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/route53_record.html.markdown
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_ecs_service_daemon_fargate_launch_type.go`
+  - `rules/aws_ecs_service_daemon_fargate_launch_type_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - pending
+- Result:
+  - Added an `ERROR` rule that reports `aws_ecs_service` resources explicitly combining `launch_type = "FARGATE"` with `scheduling_strategy = "DAEMON"`.
+- Follow-up ideas:
+  - Revisit the ECS daemon rule family for `deployment_controller.type = "CODE_DEPLOY"` or `EXTERNAL` if a nested-block check still stays reviewable.
+  - Consider whether `awscx_ecs_service_desired_count_daemon` is still worth adding as a lower-priority provider-specific cleanup rule.
+
 ## 2026-03-22 - Repository setup
 
 - Goal: Establish the initial repository guidance and prepare for sustained rule discovery and implementation.

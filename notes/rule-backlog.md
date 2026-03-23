@@ -60,6 +60,30 @@ Copy this section for each rule candidate.
 
 ## Candidates
 
+## awscx_ecs_service_daemon_fargate_launch_type
+
+- Status: implemented
+- Resource(s): `aws_ecs_service`
+- Short description: Disallow `scheduling_strategy = "DAEMON"` when `launch_type = "FARGATE"`.
+- Why it matters: ECS does not support the `DAEMON` scheduling strategy for Fargate tasks, so this catches a concrete invalid service configuration before apply.
+- Detection approach: Evaluate explicit `launch_type` and `scheduling_strategy` arguments on `aws_ecs_service` and report only when both resolve to `FARGATE` and `DAEMON`.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: This complements the existing ECS daemon deployment-percent rule with another service-specific validity check and avoids the heavier overlap of Route 53 alias argument conflicts.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service_definition_parameters.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_service
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Implemented as `ERROR` because both the provider documentation and ECS documentation describe this combination as unsupported rather than advisory guidance.
+- The rule intentionally skips unknown expressions and omitted arguments to avoid guessing about capacity provider behavior.
+
 ## awscx_sqs_queue_policy_missing_current_version
 
 - Status: implemented
