@@ -42,6 +42,7 @@ func main() {
 				rules.NewAwsLaunchTemplateDeprecatedElasticGPUSpecificationsRule(),
 				rules.NewAwsInstanceIMDSv2OptionalTokensRule(),
 				rules.NewAwsLaunchTemplateIMDSv2OptionalTokensRule(),
+				rules.NewAwsS3BucketDeprecatedAccelerationStatusRule(),
 				rules.NewAwsS3BucketDeprecatedACLRule(),
 				rules.NewAwsS3BucketConfigurationExpectedBucketOwnerDeprecatedRule(),
 				rules.NewAwsS3BucketDeprecatedLifecycleRule(),

@@ -57,6 +57,7 @@ go test ./...
 |awscx_launch_template_deprecated_elastic_inference_accelerator|Warn on deprecated `elastic_inference_accelerator` on `aws_launch_template`|WARNING|✔|https://github.com/hashicorp/terraform-provider-aws/issues/41101|
 |awscx_launch_template_deprecated_elastic_gpu_specifications|Warn on deprecated `elastic_gpu_specifications` on `aws_launch_template`|WARNING|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/launch_template|
 |awscx_launch_template_imdsv2_optional_tokens|Warn when `metadata_options.http_tokens` explicitly allows IMDSv1|WARNING|✔|https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-IMDS-new-instances.html|
+|awscx_s3_bucket_deprecated_acceleration_status|Warn on deprecated inline `acceleration_status` on `aws_s3_bucket`|WARNING|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket|
 |awscx_s3_bucket_deprecated_acl|Warn on deprecated inline `acl` on `aws_s3_bucket`|WARNING|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket|
 |awscx_s3_bucket_configuration_expected_bucket_owner_deprecated|Warn on deprecated `expected_bucket_owner` across S3 bucket configuration sub-resources|WARNING|✔|https://github.com/hashicorp/terraform-provider-aws/pull/46262|
 |awscx_s3_bucket_deprecated_lifecycle_rule|Warn on deprecated inline `lifecycle_rule` on `aws_s3_bucket`|WARNING|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket|

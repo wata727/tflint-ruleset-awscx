@@ -219,6 +219,37 @@ Each entry should be short, but should leave enough context for the next cycle t
   - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance
   - https://github.com/hashicorp/terraform-provider-aws/issues/10949
 
+## 2026-03-23 - Cycle 36
+
+- Goal: Implement another low-noise AWS provider deprecation rule grounded in official S3 documentation.
+- Candidates investigated:
+  - `awscx_s3_bucket_deprecated_acceleration_status`
+  - `awscx_spot_instance_request_legacy_api`
+  - `awscx_sqs_queue_high_throughput_fifo_partial_settings`
+- Selected candidate:
+  - `awscx_s3_bucket_deprecated_acceleration_status`
+- Why selected:
+  - The provider documentation explicitly marks `acceleration_status` on `aws_s3_bucket` as deprecated and points to a dedicated replacement resource.
+  - Detection is simple and low-noise because it only flags explicit inline usage on the deprecated attribute.
+  - The alternative candidates were more advisory and more sensitive to user intent, which would make them noisier.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/s3_bucket.html.markdown
+  - https://docs.aws.amazon.com/AmazonS3/latest/userguide/transfer-acceleration.html
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_s3_bucket_deprecated_acceleration_status.go`
+  - `rules/aws_s3_bucket_deprecated_acceleration_status_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `WARNING` rule that reports deprecated inline `acceleration_status` usage on `aws_s3_bucket` and directs users to `aws_s3_bucket_accelerate_configuration`.
+- Follow-up ideas:
+  - Continue the S3 split-resource migration track with another low-noise deprecated inline argument such as `request_payer`, `policy`, or `object_lock_configuration`.
+
 - Files changed:
   - `main.go`
   - `README.md`

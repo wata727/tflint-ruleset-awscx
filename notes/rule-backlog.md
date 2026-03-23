@@ -857,26 +857,28 @@ Copy this section for each rule candidate.
 
 ## awscx_s3_bucket_deprecated_acceleration_status
 
-- Status: deferred
+- Status: implemented
 - Resource(s): `aws_s3_bucket`
 - Short description: Warn on deprecated inline `acceleration_status` on `aws_s3_bucket`.
 - Why it matters: The provider deprecates inline acceleration configuration in favor of `aws_s3_bucket_accelerate_configuration`, so the rule would be low-noise and easy to explain.
 - Detection approach: Flag any explicit `acceleration_status` attribute on `aws_s3_bucket`.
 - False-positive risk: low
 - Implementation difficulty: low
-- Overlap notes: Fits the existing S3 split-resource migration pattern, but deferred to keep service coverage broader this cycle.
-- Selected on:
-- Implemented on:
+- Overlap notes: Fits the existing S3 split-resource migration pattern without duplicating the already implemented inline `acl`, `logging`, `versioning`, or `website` checks.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
 
 ### Sources
 
 - AWS docs: https://docs.aws.amazon.com/AmazonS3/latest/userguide/transfer-acceleration.html
 - Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+- Raw provider docs: https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/s3_bucket.html.markdown
 - terraform-provider-aws issue/PR:
 
 ### Notes
 
-- Strong fallback candidate for a future S3 deprecation cycle.
+- Implemented as a `WARNING` because this is provider deprecation and migration guidance rather than a hard API validation failure.
+- The rule intentionally reports only explicit inline `acceleration_status` usage and points users at the standalone accelerate configuration resource.
 
 ## awscx_ebs_volume_missing_iops
 
