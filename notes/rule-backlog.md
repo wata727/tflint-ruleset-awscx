@@ -60,6 +60,30 @@ Copy this section for each rule candidate.
 
 ## Candidates
 
+## awscx_ecs_service_health_check_grace_period_without_load_balancer
+
+- Status: implemented
+- Resource(s): `aws_ecs_service`
+- Short description: Disallow `health_check_grace_period_seconds` unless the ECS service has at least one `load_balancer` block.
+- Why it matters: The provider documentation says the grace period is only valid for services configured to use load balancers, so keeping it on non-load-balanced services is a concrete invalid argument combination with a straightforward fix.
+- Detection approach: Inspect `aws_ecs_service` resources and report explicit `health_check_grace_period_seconds` arguments when no `load_balancer` block is present.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Adds ECS coverage for a provider-documented validity constraint and does not overlap the existing ELB, EC2, RDS, or S3 rules.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs_services.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_service
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Implemented as `ERROR` because the provider documentation describes the argument as valid only with load balancers, not as advisory guidance.
+- The rule checks only the explicit presence of `health_check_grace_period_seconds` and `load_balancer`, so it stays conservative around other ECS service semantics.
+
 ## awscx_sfn_state_machine_log_destination_missing_wildcard
 
 - Status: implemented

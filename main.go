@@ -27,6 +27,7 @@ func main() {
 				rules.NewAwsEBSVolumeMissingIOPSRule(),
 				rules.NewAwsEBSVolumeThroughputNonGP3Rule(),
 				rules.NewAwsEIPInstanceNetworkInterfaceConflictRule(),
+				rules.NewAwsECSServiceHealthCheckGracePeriodWithoutLoadBalancerRule(),
 				rules.NewAwsEKSAddonDeprecatedResolveConflictsRule(),
 				rules.NewAwsEFSFileSystemMissingProvisionedThroughputRule(),
 				rules.NewAwsEFSFileSystemKMSKeyWithoutEncryptedRule(),

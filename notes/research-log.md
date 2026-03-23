@@ -1721,3 +1721,35 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Revisit the ELB candidates if the next cycle needs another compact applicability rule.
   - Look for more Step Functions validation rules only where AWS documents a hard static requirement rather than an operational recommendation.
+
+## 2026-03-23 - Cycle 39
+
+- Goal: Implement another low-noise AWS provider validity rule with clear static detection.
+- Candidates investigated:
+  - `awscx_ecs_service_health_check_grace_period_without_load_balancer`
+  - `awscx_cloudfront_distribution_viewer_certificate_minimum_protocol_version_default_certificate`
+  - `awscx_lambda_function_zip_package_required_arguments`
+- Selected candidate:
+  - `awscx_ecs_service_health_check_grace_period_without_load_balancer`
+- Why selected:
+  - The provider documentation explicitly says `health_check_grace_period_seconds` is only valid for services configured to use load balancers.
+  - Detection is simple and low-noise because it only depends on explicit presence of the argument and a `load_balancer` block.
+  - The CloudFront candidate was narrower but less common, and the Lambda candidate would require more care around required-versus-invalid combinations to avoid speculative findings.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_service
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/ecs_service.html.markdown
+  - https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs_services.html
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_ecs_service_health_check_grace_period_without_load_balancer.go`
+  - `rules/aws_ecs_service_health_check_grace_period_without_load_balancer_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `ERROR` rule that reports `health_check_grace_period_seconds` on `aws_ecs_service` when no `load_balancer` block is configured.
+- Follow-up ideas:
+  - Revisit the CloudFront `viewer_certificate` combinations as another low-noise nested-block validation rule.
+  - Look for additional ECS service validity constraints that depend only on explicit top-level arguments or block presence.
