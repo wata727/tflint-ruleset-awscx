@@ -880,6 +880,31 @@ Copy this section for each rule candidate.
 - Implemented as a `WARNING` because this is provider deprecation and migration guidance rather than a hard API validation failure.
 - The rule intentionally reports only explicit inline `acceleration_status` usage and points users at the standalone accelerate configuration resource.
 
+## awscx_s3_bucket_deprecated_policy
+
+- Status: implemented
+- Resource(s): `aws_s3_bucket`
+- Short description: Warn on deprecated inline `policy` on `aws_s3_bucket`.
+- Why it matters: The provider deprecates inline bucket policy management in favor of `aws_s3_bucket_policy`, and the inline form can also produce confusing perpetual diff behavior when the policy is not specific enough.
+- Detection approach: Flag any explicit `policy` attribute on `aws_s3_bucket`.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Fits the existing S3 split-resource migration pattern without overlapping the already implemented inline deprecation rules for ACL, logging, lifecycle, replication, encryption, versioning, website, and acceleration.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/AmazonS3/latest/userguide/example-bucket-policies.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+- Raw provider docs: https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/s3_bucket.html.markdown
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy
+
+### Notes
+
+- Implemented as a `WARNING` because the provider docs frame this as deprecation and migration guidance rather than an API-level invalid configuration.
+- The rule only reports explicit inline `policy` usage and directs users to `aws_s3_bucket_policy`.
+
 ## awscx_ebs_volume_missing_iops
 
 - Status: implemented

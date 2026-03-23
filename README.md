@@ -62,6 +62,7 @@ go test ./...
 |awscx_s3_bucket_configuration_expected_bucket_owner_deprecated|Warn on deprecated `expected_bucket_owner` across S3 bucket configuration sub-resources|WARNING|✔|https://github.com/hashicorp/terraform-provider-aws/pull/46262|
 |awscx_s3_bucket_deprecated_lifecycle_rule|Warn on deprecated inline `lifecycle_rule` on `aws_s3_bucket`|WARNING|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket|
 |awscx_s3_bucket_deprecated_logging|Warn on deprecated inline `logging` on `aws_s3_bucket`|WARNING|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket|
+|awscx_s3_bucket_deprecated_policy|Warn on deprecated inline `policy` on `aws_s3_bucket`|WARNING|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket|
 |awscx_s3_bucket_deprecated_replication_configuration|Warn on deprecated inline `replication_configuration` on `aws_s3_bucket`|WARNING|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket|
 |awscx_s3_bucket_deprecated_server_side_encryption_configuration|Warn on deprecated inline `server_side_encryption_configuration` on `aws_s3_bucket`|WARNING|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket|
 |awscx_s3_bucket_deprecated_versioning|Warn on deprecated inline `versioning` on `aws_s3_bucket`|WARNING|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket|

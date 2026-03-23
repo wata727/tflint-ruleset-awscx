@@ -250,6 +250,38 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Continue the S3 split-resource migration track with another low-noise deprecated inline argument such as `request_payer`, `policy`, or `object_lock_configuration`.
 
+## 2026-03-23 - Cycle 37
+
+- Goal: Continue the low-noise S3 deprecation track with another split-resource migration rule.
+- Candidates investigated:
+  - `awscx_s3_bucket_deprecated_policy`
+  - `awscx_s3_bucket_deprecated_request_payer`
+  - `awscx_s3_bucket_deprecated_object_lock_configuration`
+- Selected candidate:
+  - `awscx_s3_bucket_deprecated_policy`
+- Why selected:
+  - The provider documentation explicitly marks inline `policy` as deprecated and points users to `aws_s3_bucket_policy`.
+  - The same provider section also calls out plan churn risk for inline policy management, which makes the warning practically useful rather than purely cosmetic.
+  - The alternative candidates remain viable, but `policy` is more common and has clearer user-facing migration guidance.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/s3_bucket.html.markdown
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy
+  - https://docs.aws.amazon.com/AmazonS3/latest/userguide/example-bucket-policies.html
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_s3_bucket_deprecated_policy.go`
+  - `rules/aws_s3_bucket_deprecated_policy_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `WARNING` rule that reports deprecated inline `policy` usage on `aws_s3_bucket` and directs users to `aws_s3_bucket_policy`.
+- Follow-up ideas:
+  - Continue with `request_payer` or `object_lock_configuration` if another S3 migration rule is still the best low-noise next step.
+
 - Files changed:
   - `main.go`
   - `README.md`
