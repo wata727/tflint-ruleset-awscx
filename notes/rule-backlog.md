@@ -60,6 +60,30 @@ Copy this section for each rule candidate.
 
 ## Candidates
 
+## awscx_db_instance_blue_green_update_without_backup_retention
+
+- Status: implemented
+- Resource(s): `aws_db_instance`
+- Short description: Require `backup_retention_period > 0` when `blue_green_update.enabled = true`.
+- Why it matters: The provider documentation requires automated backups for low-downtime updates and RDS Blue/Green deployments. Leaving backups disabled causes a concrete provider-side configuration error for an explicit upgrade path.
+- Detection approach: Inspect `blue_green_update.enabled` and report when it resolves to `true` while `backup_retention_period` is omitted or resolves to `0` or less.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Complements existing RDS dependency rules by covering a newer Blue/Green prerequisite rather than another storage-specific constraint.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/blue-green-deployments-creating.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance
+- terraform-provider-aws issue/PR: https://github.com/hashicorp/terraform-provider-aws/issues/38733
+
+### Notes
+
+- Implemented as `ERROR` because the provider documents backup retention as a prerequisite for Blue/Green usage rather than a recommendation.
+- The rule only reports explicit `blue_green_update.enabled = true` and skips unknown expressions to avoid speculative findings.
+
 ## awscx_s3_bucket_configuration_expected_bucket_owner_deprecated
 
 - Status: implemented

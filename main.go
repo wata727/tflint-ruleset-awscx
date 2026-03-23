@@ -15,6 +15,7 @@ func main() {
 				rules.NewAwsAPIGatewayDeploymentDeprecatedStageManagementRule(),
 				rules.NewAwsAutoscalingGroupInvalidMaxInstanceLifetimeRule(),
 				rules.NewAwsCloudWatchLogGroupDeliveryRetentionInDaysRule(),
+				rules.NewAwsDBInstanceBlueGreenUpdateWithoutBackupRetentionRule(),
 				rules.NewAwsDBInstanceDatabaseInsightsAdvancedRequirementsRule(),
 				rules.NewAwsDBInstanceDedicatedLogVolumeNonIO1IO2Rule(),
 				rules.NewAwsDBInstanceEnhancedMonitoringRoleRequirementsRule(),

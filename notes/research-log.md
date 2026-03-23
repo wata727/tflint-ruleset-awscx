@@ -238,6 +238,39 @@ Each entry should be short, but should leave enough context for the next cycle t
   - `awscx_lb_listener_missing_certificate_arn`
   - `awscx_efs_file_system_missing_provisioned_throughput`
   - `awscx_db_instance_publicly_accessible`
+
+## 2026-03-23 - Cycle 4
+
+- Goal: Add another low-noise RDS rule grounded in explicit Blue/Green deployment prerequisites.
+- Candidates investigated:
+  - `awscx_db_instance_blue_green_update_without_backup_retention`
+  - `awscx_db_instance_backup_window_without_backups`
+  - `awscx_lb_listener_tcp_idle_timeout_non_tcp`
+  - `awscx_lb_listener_routing_http_response_headers_non_http`
+- Selected candidate:
+  - `awscx_db_instance_blue_green_update_without_backup_retention`
+- Why selected:
+  - The provider docs explicitly require `backup_retention_period > 0` when `aws_db_instance` uses low-downtime updates or RDS Blue/Green deployments.
+  - AWS documentation also states that automated backups must be enabled before creating a Blue/Green deployment, which gives the rule a clear AWS-specific rationale.
+  - The alternative listener candidates were also feasible, but they were narrower and less practically important than catching an RDS update path that will fail when backups are disabled.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance
+  - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/blue-green-deployments-creating.html
+  - https://github.com/hashicorp/terraform-provider-aws/issues/38733
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_db_instance_blue_green_update_without_backup_retention.go`
+  - `rules/aws_db_instance_blue_green_update_without_backup_retention_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `ERROR` rule that reports `aws_db_instance` resources enabling `blue_green_update` without automated backups, using `backup_retention_period` omission or `0` as the concrete trigger.
+- Follow-up ideas:
+  - Revisit `backup_window` with `backup_retention_period = 0` as a possible warning-level rule if the provider or AWS docs show it is ignored rather than rejected.
+  - Revisit `aws_lb_listener` protocol-gated attributes for another small ELB validation rule.
 - Selected candidate:
   - `awscx_lb_listener_missing_certificate_arn`
 - Why selected:
