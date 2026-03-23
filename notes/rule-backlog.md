@@ -60,6 +60,30 @@ Copy this section for each rule candidate.
 
 ## Candidates
 
+## awscx_ecs_service_deployment_maximum_percent_daemon
+
+- Status: implemented
+- Resource(s): `aws_ecs_service`
+- Short description: Disallow `deployment_maximum_percent` when the ECS service uses `scheduling_strategy = "DAEMON"`.
+- Why it matters: The provider documentation marks `deployment_maximum_percent` as not valid for daemon-scheduled services, so keeping it on those services creates a concrete invalid argument combination instead of expressing useful intent.
+- Detection approach: Evaluate `scheduling_strategy` and report explicit `deployment_maximum_percent` arguments when it resolves to `DAEMON`.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Complements the ECS grace-period rule with another provider-documented applicability check without depending on task-definition or deployment-controller context.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service_definition_parameters.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_service
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Implemented as `ERROR` because the provider documentation describes this argument as not valid for `DAEMON`, which is stronger than a recommendation.
+- The rule only fires for explicit `scheduling_strategy = "DAEMON"` and skips unknown expressions to avoid guessing about module inputs.
+
 ## awscx_ecs_service_health_check_grace_period_without_load_balancer
 
 - Status: implemented

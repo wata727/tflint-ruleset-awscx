@@ -1753,3 +1753,35 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Revisit the CloudFront `viewer_certificate` combinations as another low-noise nested-block validation rule.
   - Look for additional ECS service validity constraints that depend only on explicit top-level arguments or block presence.
+
+## 2026-03-23 - Cycle 40
+
+- Goal: Continue the ECS validity track with another provider-documented invalid argument combination.
+- Candidates investigated:
+  - `awscx_ecs_service_deployment_maximum_percent_daemon`
+  - `awscx_ecs_service_desired_count_daemon`
+  - `awscx_cloudfront_distribution_viewer_certificate_minimum_protocol_version_default_certificate`
+- Selected candidate:
+  - `awscx_ecs_service_deployment_maximum_percent_daemon`
+- Why selected:
+  - The provider documentation explicitly says `deployment_maximum_percent` is not valid when the `DAEMON` scheduling strategy is used.
+  - Detection remains low-noise because it only depends on an explicit top-level attribute and an explicit `scheduling_strategy` value.
+  - The `desired_count` candidate was weaker because AWS documents it as optional rather than invalid for daemon services, and the CloudFront candidate remains less common.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_service
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/ecs_service.html.markdown
+  - https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service_definition_parameters.html
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_ecs_service_deployment_maximum_percent_daemon.go`
+  - `rules/aws_ecs_service_deployment_maximum_percent_daemon_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `ERROR` rule that reports `deployment_maximum_percent` when `aws_ecs_service.scheduling_strategy` is explicitly set to `DAEMON`.
+- Follow-up ideas:
+  - Continue looking for ECS service constraints that are documented as invalid rather than merely unnecessary.
+  - Revisit CloudFront viewer-certificate combinations if the next cycle should move away from ECS.
