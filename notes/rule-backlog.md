@@ -809,16 +809,16 @@ Copy this section for each rule candidate.
 
 ## awscx_efs_file_system_kms_key_without_encrypted
 
-- Status: deferred
+- Status: implemented
 - Resource(s): `aws_efs_file_system`
 - Short description: Disallow `kms_key_id` unless `encrypted = true`.
-- Why it matters: The provider docs state that `encrypted` must be set when `kms_key_id` is configured, making this a strong future candidate for another low-noise EFS validity rule.
-- Detection approach: Report when `kms_key_id` is present and `encrypted` is omitted or evaluates to `false`.
+- Why it matters: The provider docs state that custom KMS keys apply only to encrypted EFS file systems, so setting `kms_key_id` without encryption is a direct configuration error rather than a policy preference.
+- Detection approach: Report when `kms_key_id` is present and `encrypted` is omitted or evaluates to `false`, while skipping unknown expressions.
 - False-positive risk: low
 - Implementation difficulty: low
-- Overlap notes: Another explicit EFS argument prerequisite, but deferred because the throughput pair was the more symmetric follow-up to the existing EFS rule.
-- Selected on:
-- Implemented on:
+- Overlap notes: Complements the existing EFS throughput dependency rules with another explicit provider-side prerequisite on the same resource.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
 
 ### Sources
 
@@ -828,7 +828,8 @@ Copy this section for each rule candidate.
 
 ### Notes
 
-- Revisit in a future EFS-focused cycle if the repository wants another direct argument-dependency rule.
+- Implemented as `ERROR` because `kms_key_id` without encryption conflicts with the documented resource contract.
+- The rule intentionally checks only explicit `kms_key_id` usage and does not validate the referenced key itself.
 
 ## awscx_s3_bucket_deprecated_acceleration_status
 

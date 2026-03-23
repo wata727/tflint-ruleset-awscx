@@ -259,6 +259,37 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Result:
   - Added an `ERROR` rule that reports `aws_lb_listener` resources using `HTTPS` or `TLS` without `certificate_arn`.
 
+## 2026-03-23 - Cycle 33
+
+- Goal: Add another low-noise AWS/provider validity rule with direct EFS argument dependency semantics.
+- Candidates investigated:
+  - `awscx_efs_file_system_kms_key_without_encrypted`
+  - `awscx_autoscaling_group_invalid_max_instance_lifetime`
+  - `awscx_s3_bucket_deprecated_acceleration_status`
+- Selected candidate:
+  - `awscx_efs_file_system_kms_key_without_encrypted`
+- Why selected:
+  - The provider documents `kms_key_id` as dependent on encryption, so this is a concrete validity rule rather than advisory hardening.
+  - Detection is simple and low-noise because it only triggers on explicit `kms_key_id` usage with omitted or explicit-false `encrypted`.
+  - The alternative candidates were viable, but one was a narrower numeric-range check and the other was another S3 deprecation warning, so EFS dependency coverage offered better balance.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/efs_file_system
+  - https://docs.aws.amazon.com/efs/latest/ug/encryption-at-rest.html
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_efs_file_system_kms_key_without_encrypted.go`
+  - `rules/aws_efs_file_system_kms_key_without_encrypted_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added an `ERROR` rule that reports `aws_efs_file_system` resources setting `kms_key_id` without `encrypted = true`.
+- Follow-up ideas:
+  - Revisit `awscx_autoscaling_group_invalid_max_instance_lifetime` for another low-noise validity rule in a non-EFS service area.
+  - Consider `awscx_s3_bucket_deprecated_acceleration_status` when the next cycle wants a small migration-focused warning.
+
 ## 2026-03-23 - Cycle 4
 
 - Goal: Add one more low-noise AWS-provider migration rule grounded in current S3 documentation and provider changes.
