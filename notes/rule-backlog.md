@@ -60,6 +60,32 @@ Copy this section for each rule candidate.
 
 ## Candidates
 
+## awscx_s3_bucket_configuration_expected_bucket_owner_deprecated
+
+- Status: implemented
+- Resource(s): `aws_s3_bucket_abac`, `aws_s3_bucket_accelerate_configuration`, `aws_s3_bucket_acl`, `aws_s3_bucket_cors_configuration`, `aws_s3_bucket_lifecycle_configuration`, `aws_s3_bucket_logging`, `aws_s3_bucket_metadata_configuration`, `aws_s3_bucket_object_lock_configuration`, `aws_s3_bucket_request_payment_configuration`, `aws_s3_bucket_server_side_encryption_configuration`, `aws_s3_bucket_versioning`, `aws_s3_bucket_website_configuration`
+- Short description: Warn on deprecated `expected_bucket_owner` across S3 bucket configuration sub-resources.
+- Why it matters: The provider has deprecated this argument across S3 bucket configuration sub-resources because the expected owner is always the current account for these APIs, so keeping it in configuration adds upgrade friction without adding protection.
+- Detection approach: Inspect each affected S3 bucket configuration sub-resource and report any explicit `expected_bucket_owner` argument.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Complements the existing S3 deprecation rules while covering a newer provider-wide deprecation pattern rather than another inline `aws_s3_bucket` block.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/AmazonS3/latest/userguide/logging-with-S3.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_acl
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_logging
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_versioning
+- terraform-provider-aws issue/PR: https://github.com/hashicorp/terraform-provider-aws/pull/46262
+
+### Notes
+
+- Implemented as `WARNING` because this is provider migration guidance rather than a hard API validation failure.
+- The rule only reports explicit configuration on the resource types called out by the provider deprecation work.
+
 ## awscx_lb_target_group_matcher_non_http_health_check
 
 - Status: implemented

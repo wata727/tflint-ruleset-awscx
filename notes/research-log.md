@@ -258,6 +258,40 @@ Each entry should be short, but should leave enough context for the next cycle t
   - `go test ./...`
 - Result:
   - Added an `ERROR` rule that reports `aws_lb_listener` resources using `HTTPS` or `TLS` without `certificate_arn`.
+
+## 2026-03-23 - Cycle 4
+
+- Goal: Add one more low-noise AWS-provider migration rule grounded in current S3 documentation and provider changes.
+- Candidates investigated:
+  - `awscx_s3_bucket_configuration_expected_bucket_owner_deprecated`
+  - `awscx_route53_record_alias_ttl_records_conflict`
+  - `awscx_lb_listener_authenticate_action_non_https`
+- Selected candidate:
+  - `awscx_s3_bucket_configuration_expected_bucket_owner_deprecated`
+- Why selected:
+  - The provider explicitly deprecated `expected_bucket_owner` across a concrete set of S3 bucket configuration sub-resources on February 3, 2026, which makes the migration path clear and the lint signal low-noise.
+  - Detection is simple and conservative because it only reports explicit attribute usage on the affected resource types.
+  - The alternative candidates looked feasible, but they either overlapped more with provider/schema validation or needed deeper nested-action analysis for a first pass.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_acl
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_logging
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_versioning
+  - https://docs.aws.amazon.com/AmazonS3/latest/userguide/logging-with-S3.html
+  - https://github.com/hashicorp/terraform-provider-aws/pull/46262
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_s3_bucket_configuration_expected_bucket_owner_deprecated.go`
+  - `rules/aws_s3_bucket_configuration_expected_bucket_owner_deprecated_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `WARNING` rule that reports deprecated `expected_bucket_owner` usage across the S3 bucket configuration sub-resources called out by the provider deprecation change.
+- Follow-up ideas:
+  - Expand S3 migration coverage to other newly deprecated configuration fields if they can be grouped cleanly without creating noisy umbrella rules.
+  - Revisit the Route 53 alias candidate only if it adds value beyond Terraform/provider schema validation.
 - Follow-up ideas:
   - Add the companion `ssl_policy` requirement check in a later ELB-focused cycle.
   - Continue balancing the ruleset with more RDS and EFS validity checks.
