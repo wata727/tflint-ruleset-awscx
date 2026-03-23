@@ -1148,16 +1148,16 @@ Copy this section for each rule candidate.
 
 ## awscx_autoscaling_group_invalid_max_instance_lifetime
 
-- Status: deferred
+- Status: implemented
 - Resource(s): `aws_autoscaling_group`
 - Short description: Disallow `max_instance_lifetime` values other than `0` or `86400..31536000`.
 - Why it matters: The provider documentation defines a strict numeric range, so invalid values are rejected and can be caught statically.
 - Detection approach: Evaluate explicit numeric `max_instance_lifetime` values and report anything outside the documented range except `0`.
 - False-positive risk: low
 - Implementation difficulty: low
-- Overlap notes: Strong candidate, but this cycle favored a more AWS-provider-specific dependency rule instead of a standalone numeric range check.
-- Selected on:
-- Implemented on:
+- Overlap notes: Adds Auto Scaling coverage without overlapping the existing EC2 launch template and instance rules, and stays low-noise by only validating explicit numeric values.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
 
 ### Sources
 
@@ -1168,7 +1168,8 @@ Copy this section for each rule candidate.
 
 ### Notes
 
-- Deferred for now because the value is real but narrower in practical impact than the selected ELB listener rule.
+- Implemented as `ERROR` because the provider documentation defines this as a concrete validity range rather than a best-practice recommendation.
+- The rule skips unknown and non-integer expressions to avoid speculative reporting on variable-driven or computed configurations.
 
 ## awscx_lb_target_group_protocol_version_non_http
 

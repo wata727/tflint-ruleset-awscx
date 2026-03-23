@@ -1460,3 +1460,35 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Revisit `awscx_lb_target_group_lambda_top_level_attributes` for `port`, `protocol`, and `vpc_id` on explicit Lambda target groups.
   - Return to `awscx_autoscaling_group_invalid_max_instance_lifetime` when the next cycle favors a compact numeric range rule.
+
+## 2026-03-23 - Cycle 34
+
+- Goal: Add one compact Auto Scaling rule with low false-positive risk and explicit provider-backed validation semantics.
+- Candidates investigated:
+  - `awscx_autoscaling_group_invalid_max_instance_lifetime`
+  - `awscx_lb_target_group_lambda_top_level_attributes`
+  - `awscx_spot_instance_request_legacy_api`
+- Selected candidate:
+  - `awscx_autoscaling_group_invalid_max_instance_lifetime`
+- Why selected:
+  - The provider and AWS documentation define a strict numeric range for `max_instance_lifetime`, making the rule easy to explain and safe to detect statically.
+  - The rule only evaluates explicit numeric values and accepts the documented `0` disablement value, which keeps reporting low-noise.
+  - The other candidates remained viable but would have needed broader resource-specific applicability logic or service-retirement context to stay equally conservative.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/autoscaling_group
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/autoscaling_group.html.markdown
+  - https://docs.aws.amazon.com/autoscaling/ec2/userguide/asg-max-instance-lifetime.html
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_autoscaling_group_invalid_max_instance_lifetime.go`
+  - `rules/aws_autoscaling_group_invalid_max_instance_lifetime_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `ERROR` rule that reports explicit `aws_autoscaling_group.max_instance_lifetime` values outside the documented `0` or `86400..31536000` range.
+- Follow-up ideas:
+  - Revisit `awscx_lb_target_group_lambda_top_level_attributes` for another low-noise applicability rule.
+  - Consider an `aws_spot_instance_request` deprecation or legacy-usage rule if it can be grounded in current provider documentation.
