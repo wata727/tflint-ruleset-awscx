@@ -1785,3 +1785,35 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Continue looking for ECS service constraints that are documented as invalid rather than merely unnecessary.
   - Revisit CloudFront viewer-certificate combinations if the next cycle should move away from ECS.
+
+## 2026-03-23 - Cycle 41
+
+- Goal: Extend the low-noise S3 split-resource migration track with another compact deprecated inline argument rule.
+- Candidates investigated:
+  - `awscx_s3_bucket_deprecated_request_payer`
+  - `awscx_s3_bucket_deprecated_grant`
+  - `awscx_cloudfront_distribution_viewer_certificate_minimum_protocol_version_default_certificate`
+- Selected candidate:
+  - `awscx_s3_bucket_deprecated_request_payer`
+- Why selected:
+  - The provider documentation exposes `request_payer` as another direct inline-to-standalone-resource migration on `aws_s3_bucket`, so the rule has the same conservative shape as the existing S3 warnings.
+  - Detection is trivial and low-noise because it only reports explicit use of one deprecated top-level attribute.
+  - The `grant` candidate remains viable but would need block handling, while the CloudFront candidate still depends on rarer nested certificate combinations.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/s3_bucket.html.markdown
+  - https://docs.aws.amazon.com/AmazonS3/latest/userguide/RequesterPaysBuckets.html
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_s3_bucket_deprecated_request_payer.go`
+  - `rules/aws_s3_bucket_deprecated_request_payer_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `WARNING` rule that reports deprecated inline `request_payer` on `aws_s3_bucket` and directs users to `aws_s3_bucket_request_payment_configuration`.
+- Follow-up ideas:
+  - Continue the same S3 migration track with `awscx_s3_bucket_deprecated_grant`.
+  - Switch back to a higher-value applicability rule if a compact CloudFront or ELB candidate becomes clearer.

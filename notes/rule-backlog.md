@@ -1420,6 +1420,31 @@ Copy this section for each rule candidate.
 - Implemented as `WARNING` because this is provider migration guidance rather than a new hard API validation error.
 - The rule only reports the deprecated inline block and does not inspect retention settings inside the standalone replacement resource.
 
+## awscx_s3_bucket_deprecated_request_payer
+
+- Status: implemented
+- Resource(s): `aws_s3_bucket`
+- Short description: Warn on deprecated inline `request_payer` on `aws_s3_bucket`.
+- Why it matters: The provider documentation deprecates inline `request_payer` in favor of `aws_s3_bucket_request_payment_configuration`, so leaving it on the bucket resource adds migration churn without adding distinct behavior.
+- Detection approach: Flag any explicit `request_payer` attribute present on `aws_s3_bucket`.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Continues the existing S3 split-resource migration warnings with another one-attribute deprecation check.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/AmazonS3/latest/userguide/RequesterPaysBuckets.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+- Raw provider docs: https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/s3_bucket.html.markdown
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Implemented as `WARNING` because this is provider migration guidance rather than a hard API validation error.
+- The rule only reports explicit inline usage and directs users to `aws_s3_bucket_request_payment_configuration`.
+
 ## awscx_lb_target_group_lambda_top_level_attributes
 
 - Status: implemented
