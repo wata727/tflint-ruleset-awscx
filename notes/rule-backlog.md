@@ -1323,6 +1323,31 @@ Copy this section for each rule candidate.
 - Implemented as `ERROR` because the flagged attributes are documented as FIFO-topic settings rather than advisory best practices.
 - The rule intentionally reports each attribute separately so the invalid configuration is obvious when multiple FIFO-only settings appear together.
 
+## awscx_s3_bucket_deprecated_object_lock_configuration
+
+- Status: implemented
+- Resource(s): `aws_s3_bucket`
+- Short description: Warn on deprecated inline `object_lock_configuration` on `aws_s3_bucket`.
+- Why it matters: The provider documentation deprecates inline object lock configuration in favor of `object_lock_enabled` plus `aws_s3_bucket_object_lock_configuration`, so keeping the old block adds upgrade friction and obscures the supported resource split.
+- Detection approach: Flag any explicit `object_lock_configuration` block present on `aws_s3_bucket`.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Extends the existing S3 split-resource migration rules with another explicit deprecated block, without requiring any cross-resource inference.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lock.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+- Raw provider docs: https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/s3_bucket.html.markdown
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Implemented as `WARNING` because this is provider migration guidance rather than a new hard API validation error.
+- The rule only reports the deprecated inline block and does not inspect retention settings inside the standalone replacement resource.
+
 ## Backlog Hygiene
 
 Prefer keeping this file concise and current.

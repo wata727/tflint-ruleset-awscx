@@ -1622,3 +1622,35 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Revisit the SQS high-throughput FIFO setting combination as a possible `WARNING` rule if it can be framed around misleading partial enablement.
   - Return to ALB authenticate action applicability only if a single, unambiguous provider or AWS source replaces the current mixed examples.
+
+## 2026-03-23 - Cycle 36
+
+- Goal: Extend the low-noise S3 deprecation track with one more explicit split-resource migration rule.
+- Candidates investigated:
+  - `awscx_s3_bucket_deprecated_object_lock_configuration`
+  - `awscx_s3_bucket_deprecated_request_payer`
+  - `awscx_s3_bucket_deprecated_grant`
+- Selected candidate:
+  - `awscx_s3_bucket_deprecated_object_lock_configuration`
+- Why selected:
+  - The provider documentation explicitly marks the inline block as deprecated and gives a concrete replacement path: keep `object_lock_enabled` on the bucket and move configuration into `aws_s3_bucket_object_lock_configuration`.
+  - Detection is low-noise because it only reports explicit inline block usage and does not depend on any AWS account or module context.
+  - The other candidates remain valid, but `object_lock_configuration` has the clearest one-to-one replacement guidance and stronger migration value than another deprecated scalar argument.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/s3_bucket.html.markdown
+  - https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lock.html
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_s3_bucket_deprecated_object_lock_configuration.go`
+  - `rules/aws_s3_bucket_deprecated_object_lock_configuration_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `WARNING` rule that reports deprecated inline `object_lock_configuration` blocks on `aws_s3_bucket` and directs users to `aws_s3_bucket_object_lock_configuration`.
+- Follow-up ideas:
+  - Continue the same S3 migration track with `awscx_s3_bucket_deprecated_request_payer` or `awscx_s3_bucket_deprecated_grant`.
+  - Revisit whether `object_lock_enabled` on buckets deserves a separate applicability or consistency rule if provider documentation exposes a low-noise constraint.
