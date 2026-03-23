@@ -1654,3 +1654,37 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Continue the same S3 migration track with `awscx_s3_bucket_deprecated_request_payer` or `awscx_s3_bucket_deprecated_grant`.
   - Revisit whether `object_lock_enabled` on buckets deserves a separate applicability or consistency rule if provider documentation exposes a low-noise constraint.
+
+## 2026-03-23 - Cycle 37
+
+- Goal: Add one more low-noise ELB target group applicability rule grounded in provider and AWS API documentation.
+- Candidates investigated:
+  - `awscx_lb_target_group_lambda_top_level_attributes`
+  - `awscx_s3_bucket_deprecated_request_payer`
+  - `awscx_s3_bucket_deprecated_grant`
+  - `awscx_sqs_queue_high_throughput_fifo_partial_settings`
+- Selected candidate:
+  - `awscx_lb_target_group_lambda_top_level_attributes`
+- Why selected:
+  - The provider documentation explicitly says `port`, `protocol`, and `vpc_id` do not apply when `target_type = "lambda"`, which keeps the rule in direct invalid-context territory.
+  - AWS ELB CreateTargetGroup documentation independently says the same parameters do not apply to Lambda targets, so the rule is grounded in both provider and service behavior.
+  - The S3 deprecation candidates remain straightforward, but this ELB rule has higher practical value than another migration warning while preserving similarly low false-positive risk.
+  - The SQS candidate is still viable as a `WARNING`, but it is more advisory because partial settings can still leave a working FIFO queue rather than creating an inapplicable configuration.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_target_group
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/lb_target_group.html.markdown
+  - https://docs.aws.amazon.com/cli/latest/reference/elbv2/create-target-group.html
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_lb_target_group_lambda_top_level_attributes.go`
+  - `rules/aws_lb_target_group_lambda_top_level_attributes_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `ERROR` rule that reports `port`, `protocol`, and `vpc_id` when they are configured on `aws_lb_target_group` resources with explicit `target_type = "lambda"`.
+- Follow-up ideas:
+  - Continue the ELB target-group applicability track with a health-check rule that only fires when the provider documentation states an argument cannot be used with Lambda targets.
+  - Return to `awscx_s3_bucket_deprecated_request_payer` or `awscx_s3_bucket_deprecated_grant` if the next cycle favors another compact migration warning.

@@ -1348,6 +1348,31 @@ Copy this section for each rule candidate.
 - Implemented as `WARNING` because this is provider migration guidance rather than a new hard API validation error.
 - The rule only reports the deprecated inline block and does not inspect retention settings inside the standalone replacement resource.
 
+## awscx_lb_target_group_lambda_top_level_attributes
+
+- Status: implemented
+- Resource(s): `aws_lb_target_group`
+- Short description: Disallow `port`, `protocol`, and `vpc_id` when `target_type = "lambda"`.
+- Why it matters: The provider documentation and ELB CreateTargetGroup API both state that these top-level target-group transport settings do not apply to Lambda targets, so keeping them in configuration is a concrete invalid-context mistake.
+- Detection approach: Evaluate explicit `target_type` values and report each configured top-level attribute among `port`, `protocol`, and `vpc_id` when the target type resolves to `lambda`.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Complements the existing `awscx_lb_target_group_protocol_version_non_http` rule by covering the other top-level attributes that become inapplicable for Lambda target groups.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/cli/latest/reference/elbv2/create-target-group.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_target_group
+- Raw provider docs: https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/lb_target_group.html.markdown
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Implemented as `ERROR` because the flagged attributes are documented as not applying to Lambda target groups rather than being advisory best practices.
+- The rule only reports explicit `target_type = "lambda"` values and skips unknown expressions to avoid speculative findings.
+
 ## Backlog Hygiene
 
 Prefer keeping this file concise and current.
