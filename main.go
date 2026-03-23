@@ -34,6 +34,7 @@ func main() {
 				rules.NewAwsLBListenerMutualAuthenticationVerifyRequirementsRule(),
 				rules.NewAwsLBListenerMissingSSLPolicyRule(),
 				rules.NewAwsLBTargetGroupMatcherNonHTTPHealthCheckRule(),
+				rules.NewAwsLBTargetGroupProtocolVersionNonHTTPRule(),
 				rules.NewAwsLaunchTemplateDeprecatedElasticInferenceAcceleratorRule(),
 				rules.NewAwsLaunchTemplateDeprecatedElasticGPUSpecificationsRule(),
 				rules.NewAwsInstanceIMDSv2OptionalTokensRule(),

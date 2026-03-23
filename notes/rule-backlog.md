@@ -1169,6 +1169,31 @@ Copy this section for each rule candidate.
 
 - Deferred for now because the value is real but narrower in practical impact than the selected ELB listener rule.
 
+## awscx_lb_target_group_protocol_version_non_http
+
+- Status: implemented
+- Resource(s): `aws_lb_target_group`
+- Short description: Disallow `protocol_version` unless `protocol` is `HTTP` or `HTTPS`, and flag it on explicit Lambda target groups.
+- Why it matters: The provider documentation marks `protocol_version` as only applicable for HTTP/HTTPS target groups, while AWS documents protocol versions as an Application Load Balancer backend feature for HTTP-family traffic. Setting it on TCP/TLS/UDP-style target groups or Lambda target groups is concrete provider misuse.
+- Detection approach: Report explicit `protocol_version` attributes when `protocol` is explicitly not `HTTP` or `HTTPS`, or when `target_type` is explicitly `lambda`. Skip unknown expressions to avoid speculative issues.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Complements the existing `aws_lb_target_group` health check rule with another top-level argument compatibility check based on explicit provider constraints.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-target-groups.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_target_group
+- Raw provider docs: https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/lb_target_group.html.markdown
+- terraform-provider-aws issue/PR: https://github.com/hashicorp/terraform-provider-aws/issues/15929
+
+### Notes
+
+- Implemented as `ERROR` because the provider documentation treats this as an argument applicability constraint rather than a stylistic recommendation.
+- The rule intentionally skips unknown `protocol` or `target_type` expressions unless the invalid context can be proven statically.
+
 ## awscx_db_instance_enhanced_monitoring_role_requirements
 
 - Status: implemented

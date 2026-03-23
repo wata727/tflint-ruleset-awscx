@@ -1396,3 +1396,36 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Revisit the same Elastic Inference retirement for `aws_instance` if the provider still exposes a parallel configuration path worth flagging.
   - Look for the next non-EC2 candidate to keep service coverage balanced.
+
+## 2026-03-23 - Cycle 32
+
+- Goal: Add another low-noise ELB target group rule grounded in explicit top-level argument applicability.
+- Candidates investigated:
+  - `awscx_lb_target_group_protocol_version_non_http`
+  - `awscx_autoscaling_group_invalid_max_instance_lifetime`
+  - `awscx_lb_target_group_lambda_top_level_attributes`
+- Selected candidate:
+  - `awscx_lb_target_group_protocol_version_non_http`
+- Why selected:
+  - The provider documentation explicitly says `protocol_version` is only applicable when `protocol` is `HTTP` or `HTTPS`, which keeps the rule in clear invalid-configuration territory.
+  - AWS documents protocol versions as an Application Load Balancer HTTP-family backend feature, so reporting TCP/TLS/UDP-style target groups or Lambda target groups stays aligned with service behavior rather than house style.
+  - The Auto Scaling lifetime candidate remains viable, but this ELB rule fits the repository bias toward dependency and applicability constraints with a slightly better provider-specific signal.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_target_group
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/lb_target_group.html.markdown
+  - https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-target-groups.html
+  - https://github.com/hashicorp/terraform-provider-aws/issues/15929
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_lb_target_group_protocol_version_non_http.go`
+  - `rules/aws_lb_target_group_protocol_version_non_http_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `ERROR` rule that reports `aws_lb_target_group.protocol_version` when the target group protocol is explicitly not `HTTP` or `HTTPS`, or when `target_type = "lambda"` makes the argument inapplicable.
+- Follow-up ideas:
+  - Revisit `awscx_lb_target_group_lambda_top_level_attributes` for `port`, `protocol`, and `vpc_id` on explicit Lambda target groups.
+  - Return to `awscx_autoscaling_group_invalid_max_instance_lifetime` when the next cycle favors a compact numeric range rule.
