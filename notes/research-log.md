@@ -1364,3 +1364,35 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Revisit `awscx_lb_target_group_protocol_version_non_http` for another compact ELB validation rule.
   - Consider a separate Lambda-only attribute rule for `port`, `protocol`, and `vpc_id` on `aws_lb_target_group`.
+
+## 2026-03-23 - Cycle 31
+
+- Goal: Add another low-noise EC2 rule based on an AWS service retirement that the provider is actively removing.
+- Candidates investigated:
+  - `awscx_launch_template_deprecated_elastic_inference_accelerator`
+  - `awscx_instance_deprecated_elastic_inference_accelerator`
+  - `awscx_ecs_task_definition_deprecated_inference_accelerator`
+- Selected candidate:
+  - `awscx_launch_template_deprecated_elastic_inference_accelerator`
+- Why selected:
+  - AWS explicitly documents that Elastic Inference is no longer available, and the provider's v6 tracking issue calls out `aws_launch_template.elastic_inference_accelerator` as a removal target.
+  - Detection is low-noise because the rule only reports an explicit block on a single resource type and does not need to infer defaults or account context.
+  - The `aws_instance` and ECS variants remain viable follow-ups, but the launch template version fit the repository's existing EC2 deprecation pattern and kept the change small.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/launch_template
+  - https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_RequestLaunchTemplateData.html
+  - https://github.com/hashicorp/terraform-provider-aws/issues/41101
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_launch_template_deprecated_elastic_inference_accelerator.go`
+  - `rules/aws_launch_template_deprecated_elastic_inference_accelerator_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `WARNING` rule that reports `elastic_inference_accelerator` blocks on `aws_launch_template` and points to the provider's Elastic Inference removal tracking.
+- Follow-up ideas:
+  - Revisit the same Elastic Inference retirement for `aws_instance` if the provider still exposes a parallel configuration path worth flagging.
+  - Look for the next non-EC2 candidate to keep service coverage balanced.

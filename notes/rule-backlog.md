@@ -1194,6 +1194,30 @@ Copy this section for each rule candidate.
 - Implemented as `ERROR` because the provider and AWS documentation treat the role and interval as a required pair when Enhanced Monitoring is enabled.
 - The rule intentionally skips configurations that set `monitoring_role_arn` without an explicit `monitoring_interval` to avoid relying on provider defaults for reporting.
 
+## awscx_launch_template_deprecated_elastic_inference_accelerator
+
+- Status: implemented
+- Resource(s): `aws_launch_template`
+- Short description: Warn on deprecated `elastic_inference_accelerator` blocks on `aws_launch_template`.
+- Why it matters: Amazon Elastic Inference reached end of life in April 2024 and is no longer available, and the Terraform AWS Provider has already marked the launch template attribute for removal in the v6 line. Keeping the block in configuration creates avoidable upgrade and apply failures.
+- Detection approach: Flag any explicit `elastic_inference_accelerator` block present on `aws_launch_template`.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Closely related to the existing Elastic Graphics deprecation rule, but covers a separate AWS service retirement and a distinct launch template block.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_RequestLaunchTemplateData.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/launch_template
+- terraform-provider-aws issue/PR: https://github.com/hashicorp/terraform-provider-aws/issues/41101
+
+### Notes
+
+- Implemented as `WARNING` because this is deprecation and service-retirement guidance rather than a new static provider validation error.
+- The rule only reports explicit launch template blocks and does not try to infer behavior from other EC2 or ECS resources.
+
 ## Backlog Hygiene
 
 Prefer keeping this file concise and current.
