@@ -1850,3 +1850,35 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Return to the CloudFront viewer-certificate candidate when the next cycle should prioritize a higher-value applicability rule over another S3 migration warning.
   - Revisit Lambda package argument combinations only if the detection can be kept strictly expression-driven and low-noise.
+
+## 2026-03-23 - Cycle 43
+
+- Goal: Shift back from S3 migration warnings to a higher-value provider-documented validity check.
+- Candidates investigated:
+  - `awscx_cloudfront_distribution_minimum_protocol_version_default_certificate`
+  - `awscx_lambda_function_zip_package_required_arguments`
+  - `awscx_ecs_service_desired_count_daemon`
+- Selected candidate:
+  - `awscx_cloudfront_distribution_minimum_protocol_version_default_certificate`
+- Why selected:
+  - The CloudFront distribution documentation explicitly states that `minimum_protocol_version` can only be set when `cloudfront_default_certificate = false`, which makes the rule a direct invalid-combination check rather than an opinionated best practice.
+  - Detection is low-noise because it only depends on explicit values inside one `viewer_certificate` block and can safely skip unknown expressions.
+  - The Lambda candidate is still viable but would need broader package-mode validation, while the ECS `desired_count` candidate remains less certain because the documentation frames it as "do not specify" rather than a stricter provider applicability contract.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_distribution
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/cloudfront_distribution.html.markdown
+  - https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/secure-connections-supported-viewer-protocols-ciphers.html
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_cloudfront_distribution_minimum_protocol_version_default_certificate.go`
+  - `rules/aws_cloudfront_distribution_minimum_protocol_version_default_certificate_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `ERROR` rule that reports `viewer_certificate.minimum_protocol_version` when `viewer_certificate.cloudfront_default_certificate` is explicitly `true`.
+- Follow-up ideas:
+  - Revisit the Lambda package-type candidate with a narrower scope, such as one explicit `package_type = "Zip"` requirement at a time.
+  - Continue the CloudFront track with other viewer-certificate combinations only if they remain equally explicit and low-noise.

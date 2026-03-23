@@ -14,6 +14,7 @@ func main() {
 			Rules: []tflint.Rule{
 				rules.NewAwsAPIGatewayDeploymentDeprecatedStageManagementRule(),
 				rules.NewAwsAutoscalingGroupInvalidMaxInstanceLifetimeRule(),
+				rules.NewAwsCloudFrontDistributionMinimumProtocolVersionDefaultCertificateRule(),
 				rules.NewAwsCloudWatchLogGroupDeliveryRetentionInDaysRule(),
 				rules.NewAwsDBInstanceBlueGreenUpdateWithoutBackupRetentionRule(),
 				rules.NewAwsDBInstanceDatabaseInsightsAdvancedRequirementsRule(),

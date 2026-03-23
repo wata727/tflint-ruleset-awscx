@@ -1495,6 +1495,31 @@ Copy this section for each rule candidate.
 - Implemented as `ERROR` because the flagged attributes are documented as not applying to Lambda target groups rather than being advisory best practices.
 - The rule only reports explicit `target_type = "lambda"` values and skips unknown expressions to avoid speculative findings.
 
+## awscx_cloudfront_distribution_minimum_protocol_version_default_certificate
+
+- Status: implemented
+- Resource(s): `aws_cloudfront_distribution`
+- Short description: Disallow `viewer_certificate.minimum_protocol_version` when `viewer_certificate.cloudfront_default_certificate = true`.
+- Why it matters: The provider documentation says `minimum_protocol_version` can only be set when `cloudfront_default_certificate = false`, so keeping it alongside the default CloudFront certificate is a concrete invalid combination rather than a stylistic preference.
+- Detection approach: Inspect explicit `viewer_certificate` blocks and report `minimum_protocol_version` when `cloudfront_default_certificate` evaluates to `true`; skip omitted or unknown values to avoid speculative findings.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Complements the existing load balancer protocol applicability rules with another AWS CDN certificate applicability check grounded in provider-documented block semantics.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/secure-connections-supported-viewer-protocols-ciphers.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_distribution
+- Raw provider docs: https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/cloudfront_distribution.html.markdown
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Implemented as `ERROR` because the provider documentation describes this as a direct validity constraint on the `viewer_certificate` block.
+- The rule intentionally checks only the explicit `cloudfront_default_certificate = true` case and does not infer behavior when the boolean comes from unknown expressions.
+
 ## Backlog Hygiene
 
 Prefer keeping this file concise and current.
