@@ -57,6 +57,39 @@ Each entry should be short, but should leave enough context for the next cycle t
   - Revisit the ECS daemon rule family for `deployment_controller.type = "CODE_DEPLOY"` or `EXTERNAL` if a nested-block check still stays reviewable.
   - Consider whether `awscx_ecs_service_desired_count_daemon` is still worth adding as a lower-priority provider-specific cleanup rule.
 
+## 2026-03-24 - Cycle 47
+
+- Goal: Add one more low-noise ECS validity rule using a provider-documented unsupported scheduling combination.
+- Candidates investigated:
+  - `awscx_ecs_service_daemon_unsupported_deployment_controller`
+  - `awscx_lb_listener_authenticate_action_non_https`
+  - `awscx_route53_record_alias_ttl_records_conflict`
+- Selected candidate:
+  - `awscx_ecs_service_daemon_unsupported_deployment_controller`
+- Why selected:
+  - The Terraform AWS provider documentation explicitly states that services using the `CODE_DEPLOY` or `EXTERNAL` deployment controller types do not support `DAEMON`, so the rule is grounded in a hard service constraint rather than style guidance.
+  - Detection stays low-noise because it only fires when both `scheduling_strategy` and `deployment_controller.type` are explicitly known.
+  - The listener-auth candidate would need deeper nested action coverage, and the Route 53 alias candidate overlaps heavily with provider schema conflicts already documented as `Conflicts with`.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_service
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/ecs_service.html.markdown
+  - https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_CreateService.html
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/route53_record.html.markdown
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_ecs_service_daemon_unsupported_deployment_controller.go`
+  - `rules/aws_ecs_service_daemon_unsupported_deployment_controller_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added an `ERROR` rule that reports `aws_ecs_service` resources explicitly combining `scheduling_strategy = "DAEMON"` with `deployment_controller.type = "CODE_DEPLOY"` or `EXTERNAL`.
+- Follow-up ideas:
+  - Revisit `awscx_lb_listener_authenticate_action_non_https` if a concise nested `default_action` implementation stays readable.
+  - Keep `awscx_route53_record_alias_ttl_records_conflict` deferred unless the repository decides schema-overlap checks are still worth surfacing earlier.
+
 ## 2026-03-22 - Repository setup
 
 - Goal: Establish the initial repository guidance and prepare for sustained rule discovery and implementation.

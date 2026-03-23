@@ -29,6 +29,7 @@ func main() {
 				rules.NewAwsEBSVolumeThroughputNonGP3Rule(),
 				rules.NewAwsEIPInstanceNetworkInterfaceConflictRule(),
 				rules.NewAwsECSServiceDaemonFargateLaunchTypeRule(),
+				rules.NewAwsECSServiceDaemonUnsupportedDeploymentControllerRule(),
 				rules.NewAwsECSServiceDeploymentMaximumPercentDaemonRule(),
 				rules.NewAwsECSServiceHealthCheckGracePeriodWithoutLoadBalancerRule(),
 				rules.NewAwsEKSAddonDeprecatedResolveConflictsRule(),

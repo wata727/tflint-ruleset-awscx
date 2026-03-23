@@ -84,6 +84,30 @@ Copy this section for each rule candidate.
 - Implemented as `ERROR` because both the provider documentation and ECS documentation describe this combination as unsupported rather than advisory guidance.
 - The rule intentionally skips unknown expressions and omitted arguments to avoid guessing about capacity provider behavior.
 
+## awscx_ecs_service_daemon_unsupported_deployment_controller
+
+- Status: implemented
+- Resource(s): `aws_ecs_service`
+- Short description: Disallow `scheduling_strategy = "DAEMON"` when `deployment_controller.type` is `CODE_DEPLOY` or `EXTERNAL`.
+- Why it matters: The provider documentation explicitly states that services using the `CODE_DEPLOY` or `EXTERNAL` deployment controller types do not support the `DAEMON` scheduling strategy, so this catches a concrete invalid ECS service combination before apply.
+- Detection approach: Evaluate explicit `scheduling_strategy` and `deployment_controller.type` values on `aws_ecs_service` and report only when they resolve to `DAEMON` plus `CODE_DEPLOY` or `EXTERNAL`.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Complements the existing Fargate daemon rule and deployment percent rule by covering the remaining provider-documented unsupported daemon combinations without depending on runtime service state.
+- Selected on: 2026-03-24
+- Implemented on: 2026-03-24
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_CreateService.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_service
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Implemented as `ERROR` because the provider documentation describes the combination as unsupported rather than optional guidance.
+- The rule only reports explicit known values and skips omitted or unknown deployment controller types to avoid speculative findings.
+
 ## awscx_sqs_queue_policy_missing_current_version
 
 - Status: implemented
