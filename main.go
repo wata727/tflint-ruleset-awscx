@@ -58,6 +58,7 @@ func main() {
 				rules.NewAwsSNSTopicFIFONameSuffixRule(),
 				rules.NewAwsSecurityGroupAllProtocolNonzeroPortsRule(),
 				rules.NewAwsSecurityGroupInvalidProtocolRule(),
+				rules.NewAwsSFNStateMachineLogDestinationMissingWildcardRule(),
 				rules.NewAwsSQSQueueFIFONameSuffixRule(),
 			},
 		},

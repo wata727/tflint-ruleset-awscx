@@ -60,6 +60,30 @@ Copy this section for each rule candidate.
 
 ## Candidates
 
+## awscx_sfn_state_machine_log_destination_missing_wildcard
+
+- Status: implemented
+- Resource(s): `aws_sfn_state_machine`
+- Short description: Require `logging_configuration.log_destination` to end with `:*`.
+- Why it matters: AWS Step Functions requires CloudWatch Logs destination ARNs to include the trailing wildcard suffix, so omitting it produces an invalid logging configuration with a clear service-specific fix.
+- Detection approach: Inspect `logging_configuration.log_destination` on `aws_sfn_state_machine` and report explicit string values that do not end with `:*`.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Adds Step Functions coverage for a concrete API requirement and does not overlap the existing ELB, RDS, or S3 checks.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/step-functions/latest/apireference/API_CloudWatchLogsLogGroup.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sfn_state_machine
+- terraform-provider-aws issue/PR: https://github.com/hashicorp/terraform-provider-aws/issues/39558
+
+### Notes
+
+- Implemented as `ERROR` because the Step Functions API documents the suffix as a hard ARN requirement rather than optional guidance.
+- The rule intentionally skips unknown expressions to avoid speculative findings on variable-driven destinations.
+
 ## awscx_db_instance_blue_green_update_without_backup_retention
 
 - Status: implemented

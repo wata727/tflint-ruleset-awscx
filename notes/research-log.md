@@ -1688,3 +1688,36 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Continue the ELB target-group applicability track with a health-check rule that only fires when the provider documentation states an argument cannot be used with Lambda targets.
   - Return to `awscx_s3_bucket_deprecated_request_payer` or `awscx_s3_bucket_deprecated_grant` if the next cycle favors another compact migration warning.
+
+## 2026-03-23 - Cycle 38
+
+- Goal: Add one more low-noise AWS-specific validity rule with direct service documentation behind it.
+- Candidates investigated:
+  - `awscx_sfn_state_machine_log_destination_missing_wildcard`
+  - `awscx_lb_target_group_lambda_health_check_protocol`
+  - `awscx_lb_listener_routing_http_response_server_enabled_non_http`
+- Selected candidate:
+  - `awscx_sfn_state_machine_log_destination_missing_wildcard`
+- Why selected:
+  - AWS Step Functions explicitly requires CloudWatch Logs destination ARNs to end with `:*`, which makes the rule a direct invalid-configuration check rather than advisory guidance.
+  - Detection is narrow and low-noise because it only inspects explicit `logging_configuration.log_destination` values on `aws_sfn_state_machine`.
+  - The ELB candidates remain viable, but this Step Functions rule has a simpler trigger, clearer fix, and less dependence on adjacent protocol context.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sfn_state_machine
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/sfn_state_machine.html.markdown
+  - https://docs.aws.amazon.com/step-functions/latest/apireference/API_CloudWatchLogsLogGroup.html
+  - https://github.com/hashicorp/terraform-provider-aws/issues/39558
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_sfn_state_machine_log_destination_missing_wildcard.go`
+  - `rules/aws_sfn_state_machine_log_destination_missing_wildcard_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `ERROR` rule that reports Step Functions `logging_configuration.log_destination` values that omit the required trailing `:*` wildcard.
+- Follow-up ideas:
+  - Revisit the ELB candidates if the next cycle needs another compact applicability rule.
+  - Look for more Step Functions validation rules only where AWS documents a hard static requirement rather than an operational recommendation.
