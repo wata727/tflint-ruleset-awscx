@@ -711,7 +711,7 @@ Each entry should be short, but should leave enough context for the next cycle t
   - `notes/rule-backlog.md`
   - `notes/research-log.md`
 - Tests run:
-  - pending
+  - `go test ./...`
 - Result:
   - Added a new `WARNING` rule that reports deprecated inline `website` blocks on `aws_s3_bucket` and directs users to `aws_s3_bucket_website_configuration`.
 - Follow-up ideas:
@@ -1915,3 +1915,37 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Revisit the Route 53 alias-record candidate if the repository wants another explicit argument-combination rule.
   - Explore whether `aws_sqs_queue.policy` inline policies should get the same check once a direct provider source is confirmed for that path.
+
+## 2026-03-23 - Cycle 45
+
+- Goal: Add one higher-value Lambda validity rule with a direct provider requirement and low false-positive risk.
+- Candidates investigated:
+  - `awscx_lambda_function_zip_required_attributes`
+  - `awscx_ecs_service_desired_count_daemon`
+  - `awscx_route53_record_alias_ttl_records_conflict`
+- Selected candidate:
+  - `awscx_lambda_function_zip_required_attributes`
+- Why selected:
+  - The provider documentation explicitly says `handler` and `runtime` are required when `package_type` is `Zip`, which makes the rule a direct validity check rather than a best-practice opinion.
+  - Detection is conservative because omitted `package_type` has a documented default of `Zip`, while unknown expressions can be skipped without losing correctness.
+  - The ECS and Route 53 candidates remain viable, but both overlap more with existing schema or provider validation behavior than this Lambda requirement does.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/lambda_function.html.markdown
+  - https://docs.aws.amazon.com/lambda/latest/api/API_CreateFunction.html
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/ecs_service.html.markdown
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/route53_record.html.markdown
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_lambda_function_zip_required_attributes.go`
+  - `rules/aws_lambda_function_zip_required_attributes_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - pending
+- Result:
+  - Added an `ERROR` rule that reports missing `handler` and `runtime` on `aws_lambda_function` when the package type is explicitly `Zip` or omitted.
+- Follow-up ideas:
+  - Revisit `awscx_ecs_service_desired_count_daemon` if a separate pass decides the provider-documented "Do not specify" wording is strong enough for a lint check.
+  - Explore a tighter Route 53 rule only if it adds value beyond Terraform's native argument-conflict validation.

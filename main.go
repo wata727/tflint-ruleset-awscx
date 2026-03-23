@@ -42,6 +42,7 @@ func main() {
 				rules.NewAwsLBTargetGroupMatcherNonHTTPHealthCheckRule(),
 				rules.NewAwsLBTargetGroupLambdaTopLevelAttributesRule(),
 				rules.NewAwsLBTargetGroupProtocolVersionNonHTTPRule(),
+				rules.NewAwsLambdaFunctionZipRequiredAttributesRule(),
 				rules.NewAwsLaunchTemplateDeprecatedElasticInferenceAcceleratorRule(),
 				rules.NewAwsLaunchTemplateDeprecatedElasticGPUSpecificationsRule(),
 				rules.NewAwsInstanceIMDSv2OptionalTokensRule(),

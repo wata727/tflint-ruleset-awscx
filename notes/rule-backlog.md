@@ -1545,6 +1545,31 @@ Copy this section for each rule candidate.
 - Implemented as `ERROR` because the provider documentation describes this as a direct validity constraint on the `viewer_certificate` block.
 - The rule intentionally checks only the explicit `cloudfront_default_certificate = true` case and does not infer behavior when the boolean comes from unknown expressions.
 
+## awscx_lambda_function_zip_required_attributes
+
+- Status: implemented
+- Resource(s): `aws_lambda_function`
+- Short description: Require `handler` and `runtime` when `package_type` is `Zip` or omitted.
+- Why it matters: The provider documentation says `handler` and `runtime` are required for Zip-based Lambda functions, while image-based functions do not need them. Omitting these fields from a Zip function produces a concrete invalid configuration rather than a stylistic disagreement.
+- Detection approach: Treat omitted `package_type` as the provider default `Zip`, report missing `handler` and `runtime`, and skip unknown `package_type` expressions to avoid speculative findings.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Covers a provider-documented Lambda applicability requirement that is not already enforced by the existing ruleset and does not depend on runtime account context.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function
+- Raw provider docs: https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/lambda_function.html.markdown
+- AWS docs: https://docs.aws.amazon.com/lambda/latest/api/API_CreateFunction.html
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Implemented as `ERROR` because the missing attributes violate the documented requirements for Zip package functions.
+- The rule intentionally skips unknown `package_type` expressions and only relies on the explicit `Image` exception or the documented default `Zip`.
+
 ## Backlog Hygiene
 
 Prefer keeping this file concise and current.
