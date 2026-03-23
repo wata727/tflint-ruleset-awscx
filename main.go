@@ -64,6 +64,7 @@ func main() {
 				rules.NewAwsSecurityGroupAllProtocolNonzeroPortsRule(),
 				rules.NewAwsSecurityGroupInvalidProtocolRule(),
 				rules.NewAwsSFNStateMachineLogDestinationMissingWildcardRule(),
+				rules.NewAwsSQSQueuePolicyMissingCurrentVersionRule(),
 				rules.NewAwsSQSQueueFIFONameSuffixRule(),
 			},
 		},

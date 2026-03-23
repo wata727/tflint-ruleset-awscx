@@ -79,4 +79,5 @@ go test ./...
 |awscx_security_group_all_protocol_nonzero_ports|Require `from_port = 0` and `to_port = 0` when `protocol = "-1"` on inline security group rules|ERROR|✔|https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_IpPermission.html|
 |awscx_security_group_invalid_protocol|Disallow invalid `protocol`|ERROR|✔|https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_IpPermission.html|
 |awscx_sfn_state_machine_log_destination_missing_wildcard|Require `logging_configuration.log_destination` on `aws_sfn_state_machine` to end with `:*`|ERROR|✔|https://docs.aws.amazon.com/step-functions/latest/apireference/API_CloudWatchLogsLogGroup.html|
+|awscx_sqs_queue_policy_missing_current_version|Require `aws_sqs_queue_policy.policy` to set top-level `Version = "2012-10-17"`|ERROR|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sqs_queue|
 |awscx_sqs_queue_fifo_name_suffix|Require FIFO `aws_sqs_queue.name` values to end with `.fifo`|ERROR|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sqs_queue|

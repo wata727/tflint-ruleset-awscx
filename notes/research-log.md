@@ -1882,3 +1882,36 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Revisit the Lambda package-type candidate with a narrower scope, such as one explicit `package_type = "Zip"` requirement at a time.
   - Continue the CloudFront track with other viewer-certificate combinations only if they remain equally explicit and low-noise.
+
+## 2026-03-23 - Cycle 44
+
+- Goal: Add another low-noise AWS-specific rule that prevents an apply-time provider failure.
+- Candidates investigated:
+  - `awscx_sqs_queue_policy_missing_current_version`
+  - `awscx_route53_record_alias_conflicts`
+  - `awscx_sqs_queue_redrive_policy_role_conflict`
+- Selected candidate:
+  - `awscx_sqs_queue_policy_missing_current_version`
+- Why selected:
+  - The AWS provider documentation explicitly warns about a timeout failure mode when the SQS queue policy omits `Version = "2012-10-17"`.
+  - Detection is straightforward and conservative because the rule only evaluates known JSON strings on `aws_sqs_queue_policy`.
+  - The Route 53 alias candidate overlaps more heavily with schema-level argument conflicts, and the SQS redrive-role candidate depended on more inference about queue intent.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sqs_queue
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sqs_queue_policy
+  - https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_version.html
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/sqs_queue.html.markdown
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_sqs_queue_policy_missing_current_version.go`
+  - `rules/aws_sqs_queue_policy_missing_current_version_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added an `ERROR` rule that reports `aws_sqs_queue_policy.policy` documents whose top-level `Version` is missing or not equal to `2012-10-17`.
+- Follow-up ideas:
+  - Revisit the Route 53 alias-record candidate if the repository wants another explicit argument-combination rule.
+  - Explore whether `aws_sqs_queue.policy` inline policies should get the same check once a direct provider source is confirmed for that path.

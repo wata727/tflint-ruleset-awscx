@@ -60,6 +60,31 @@ Copy this section for each rule candidate.
 
 ## Candidates
 
+## awscx_sqs_queue_policy_missing_current_version
+
+- Status: implemented
+- Resource(s): `aws_sqs_queue_policy`
+- Short description: Require SQS queue policies to set top-level `Version = "2012-10-17"`.
+- Why it matters: The AWS provider documentation warns that SQS queue create and update operations can hang indefinitely when the associated queue policy does not explicitly set the current policy language version, so this catches a concrete provider-specific failure mode before apply.
+- Detection approach: Evaluate `aws_sqs_queue_policy.policy` when it resolves to a known string, parse the JSON document, and report policies whose top-level `Version` field is missing or not equal to `2012-10-17`.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Adds SQS coverage for a provider-documented timeout pitfall and stays conservative by skipping unknown or invalid JSON that Terraform will already reject elsewhere.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_version.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sqs_queue
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sqs_queue_policy
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Implemented as `ERROR` because the provider documentation describes a concrete timeout failure mode rather than advisory guidance.
+- The rule only inspects policies that evaluate to a known JSON string and skips unresolved expressions to avoid speculative findings.
+
 ## awscx_s3_bucket_deprecated_grant
 
 - Status: implemented
