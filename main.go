@@ -30,6 +30,7 @@ func main() {
 				rules.NewAwsInstanceDeprecatedNetworkInterfaceRule(),
 				rules.NewAwsLBListenerALPNPolicyNonTLSRule(),
 				rules.NewAwsLBListenerMissingCertificateARNRule(),
+				rules.NewAwsLBListenerMutualAuthenticationVerifyRequirementsRule(),
 				rules.NewAwsLBListenerMissingSSLPolicyRule(),
 				rules.NewAwsLaunchTemplateDeprecatedElasticGPUSpecificationsRule(),
 				rules.NewAwsInstanceIMDSv2OptionalTokensRule(),

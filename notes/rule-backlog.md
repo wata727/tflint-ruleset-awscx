@@ -1070,6 +1070,79 @@ Copy this section for each rule candidate.
 - Implemented as an `ERROR` because FIFO topic creation requires the `.fifo` suffix.
 - The rule intentionally skips cases that use `name_prefix` or unknown expressions, because the final generated name is not statically known.
 
+## awscx_lb_listener_mutual_authentication_verify_requirements
+
+- Status: implemented
+- Resource(s): `aws_lb_listener`
+- Short description: Require `mutual_authentication.trust_store_arn` for `mode = "verify"` and disallow verify-only attributes for `off` or `passthrough`.
+- Why it matters: The provider documentation explicitly marks `trust_store_arn` as required for verify mode and `advertise_trust_store_ca_names` / `ignore_client_certificate_expiry` as invalid outside verify mode. A provider issue also shows that leaving verify-only attributes in non-verify modes can produce ELB API validation failures.
+- Detection approach: Evaluate `mutual_authentication.mode` and report missing `trust_store_arn` for explicit `verify` values, or any explicit verify-only attributes for explicit `off` / `passthrough` values.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Extends existing `aws_lb_listener` protocol and certificate checks with a nested-block validity rule that is still based on explicit provider contracts rather than organization-specific policy.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/en_us/elasticloadbalancing/latest/APIReference/API_MutualAuthenticationAttributes.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_listener
+- Raw provider docs: https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/lb_listener.html.markdown
+- terraform-provider-aws issue/PR: https://github.com/hashicorp/terraform-provider-aws/issues/34861
+
+### Notes
+
+- Implemented as `ERROR` because the documented combinations are invalid and can fail at provider or ELB API validation time.
+- The rule intentionally skips unknown `mode` expressions to avoid speculative reporting on variable-driven configurations.
+
+## awscx_autoscaling_group_invalid_max_instance_lifetime
+
+- Status: deferred
+- Resource(s): `aws_autoscaling_group`
+- Short description: Disallow `max_instance_lifetime` values other than `0` or `86400..31536000`.
+- Why it matters: The provider documentation defines a strict numeric range, so invalid values are rejected and can be caught statically.
+- Detection approach: Evaluate explicit numeric `max_instance_lifetime` values and report anything outside the documented range except `0`.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Strong candidate, but this cycle favored a more AWS-provider-specific dependency rule instead of a standalone numeric range check.
+- Selected on:
+- Implemented on:
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/autoscaling/ec2/userguide/asg-max-instance-lifetime.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/autoscaling_group
+- Raw provider docs: https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/autoscaling_group.html.markdown
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Deferred for now because the value is real but narrower in practical impact than the selected ELB listener rule.
+
+## awscx_db_instance_enhanced_monitoring_role_requirements
+
+- Status: deferred
+- Resource(s): `aws_db_instance`
+- Short description: Require `monitoring_role_arn` when `monitoring_interval` enables Enhanced Monitoring, and disallow the role when interval is `0`.
+- Why it matters: The provider documentation models `monitoring_role_arn` as dependent on Enhanced Monitoring, so mismatched settings are concrete provider misuse rather than a preference.
+- Detection approach: Evaluate explicit `monitoring_interval` values and report missing or extraneous `monitoring_role_arn` based on whether monitoring is enabled.
+- False-positive risk: low
+- Implementation difficulty: medium
+- Overlap notes: Valuable RDS follow-up candidate, but it needs slightly more care around interval semantics and default handling than the selected ELB listener rule.
+- Selected on:
+- Implemented on:
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Monitoring.OS.Enabling.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance
+- Raw provider docs: https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/db_instance.html.markdown
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Deferred because the selected listener rule offered a smaller, cleaner implementation surface for this cycle.
+
 ## Backlog Hygiene
 
 Prefer keeping this file concise and current.

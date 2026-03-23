@@ -1228,3 +1228,40 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Revisit `awscx_efs_file_system_kms_key_without_encrypted` for another narrowly scoped EFS argument dependency.
   - Return to the deferred S3 acceleration deprecation candidate when the next cycle favors split-resource migration rules.
+
+## 2026-03-23 - Cycle 28
+
+- Goal: Add another low-noise ELB listener validity rule using explicit nested-block requirements from the provider docs.
+- Candidates investigated:
+  - `awscx_lb_listener_mutual_authentication_verify_requirements`
+  - `awscx_autoscaling_group_invalid_max_instance_lifetime`
+  - `awscx_db_instance_enhanced_monitoring_role_requirements`
+- Selected candidate:
+  - `awscx_lb_listener_mutual_authentication_verify_requirements`
+- Why selected:
+  - The provider documentation explicitly defines `trust_store_arn` as required for `mutual_authentication.mode = "verify"` and marks `advertise_trust_store_ca_names` and `ignore_client_certificate_expiry` invalid outside verify mode, so the rule stays in clear invalid-configuration territory.
+  - Detection is low-noise because it only evaluates explicit `mutual_authentication` blocks with resolvable `mode` values and does not guess about provider defaults or unknown expressions.
+  - The Auto Scaling candidate remains strong but is a simpler numeric-range check, and the RDS monitoring candidate needed a bit more semantic review around interval handling and defaults.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_listener
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/lb_listener.html.markdown
+  - https://docs.aws.amazon.com/en_us/elasticloadbalancing/latest/APIReference/API_MutualAuthenticationAttributes.html
+  - https://github.com/hashicorp/terraform-provider-aws/issues/34861
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/autoscaling_group.html.markdown
+  - https://docs.aws.amazon.com/autoscaling/ec2/userguide/asg-max-instance-lifetime.html
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/db_instance.html.markdown
+  - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Monitoring.OS.Enabling.html
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_lb_listener_mutual_authentication_verify_requirements.go`
+  - `rules/aws_lb_listener_mutual_authentication_verify_requirements_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `ERROR` rule that reports `aws_lb_listener` mutual-authentication blocks missing `trust_store_arn` in verify mode or using verify-only attributes in `off` / `passthrough` modes.
+- Follow-up ideas:
+  - Revisit `awscx_db_instance_enhanced_monitoring_role_requirements` for another low-noise RDS dependency rule.
+  - Return to `awscx_autoscaling_group_invalid_max_instance_lifetime` when the next cycle favors a compact numeric validation rule.
