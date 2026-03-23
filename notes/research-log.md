@@ -1126,3 +1126,39 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Revisit `aws_lb_listener` argument-to-protocol dependency rules if the repository wants denser ELB coverage.
   - Explore more low-noise CloudWatch Logs rules around class-specific argument restrictions.
+
+## 2026-03-23 - Cycle 25
+
+- Goal: Implement another low-noise RDS validity rule using an explicit AWS feature prerequisite.
+- Candidates investigated:
+  - `awscx_db_instance_database_insights_advanced_requirements`
+  - `awscx_sqs_queue_high_throughput_fifo_partial_settings`
+  - `awscx_spot_instance_request_legacy_api`
+- Selected candidate:
+  - `awscx_db_instance_database_insights_advanced_requirements`
+- Why selected:
+  - AWS documents Advanced mode for Database Insights as depending on Performance Insights being enabled and on a retention period of at least 465 days, making this a direct correctness rule rather than an organizational preference.
+  - Detection is low-noise because it only evaluates explicit `database_insights_mode = "advanced"` usage and checks two concrete dependent settings.
+  - The SQS candidate remains useful but is more advisory, and the Spot Instance Request candidate is broader because it warns on an entire resource rather than a narrowly invalid attribute combination.
+- Sources used:
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/db_instance.html.markdown
+  - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_DatabaseInsights.TurningOnAdvanced.html
+  - https://github.com/hashicorp/terraform-provider-aws/issues/41607
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/sqs_queue.html.markdown
+  - https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/FIFO-queues-exactly-once-processing.html
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/spot_instance_request.html.markdown
+  - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-best-practices.html#which-spot-request-method-to-use
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_db_instance_database_insights_advanced_requirements.go`
+  - `rules/aws_db_instance_database_insights_advanced_requirements_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added an `ERROR` rule that reports `aws_db_instance` resources using `database_insights_mode = "advanced"` without `performance_insights_enabled = true` or with `performance_insights_retention_period < 465`.
+- Follow-up ideas:
+  - Revisit `awscx_spot_instance_request_legacy_api` if the ruleset wants a broader provider-deprecation warning beyond attribute-level validity checks.
+  - Re-evaluate the SQS high-throughput FIFO candidate only if it can be narrowed to a lower-noise misconfiguration pattern.

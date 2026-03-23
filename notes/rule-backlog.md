@@ -273,7 +273,7 @@ Copy this section for each rule candidate.
 
 ## awscx_db_instance_database_insights_advanced_requirements
 
-- Status: deferred
+- Status: implemented
 - Resource(s): `aws_db_instance`
 - Short description: Require `performance_insights_enabled = true` and a long enough retention period when `database_insights_mode = "advanced"`.
 - Why it matters: AWS documents advanced Database Insights mode as depending on Performance Insights and a retention period of at least 465 days.
@@ -281,8 +281,8 @@ Copy this section for each rule candidate.
 - False-positive risk: low
 - Implementation difficulty: medium
 - Overlap notes: Adjacent to the implemented Performance Insights dependency rule, but slightly broader because it depends on newer Database Insights semantics.
-- Selected on:
-- Implemented on:
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
 
 ### Sources
 
@@ -292,7 +292,8 @@ Copy this section for each rule candidate.
 
 ### Notes
 
-- Deferred for now because the selected rule addresses older and more immediately invalid configurations with a smaller implementation surface.
+- Implemented as `ERROR` because AWS documents advanced mode as requiring both Performance Insights and a retention period of at least 465 days.
+- The rule intentionally checks only explicit `database_insights_mode = "advanced"` values and skips ambiguous expressions for the dependent attributes.
 
 ## awscx_lb_listener_missing_ssl_policy
 
