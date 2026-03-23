@@ -48,6 +48,7 @@ func main() {
 				rules.NewAwsS3BucketDeprecatedAccelerationStatusRule(),
 				rules.NewAwsS3BucketDeprecatedACLRule(),
 				rules.NewAwsS3BucketConfigurationExpectedBucketOwnerDeprecatedRule(),
+				rules.NewAwsS3BucketDeprecatedGrantRule(),
 				rules.NewAwsS3BucketDeprecatedLifecycleRule(),
 				rules.NewAwsS3BucketDeprecatedLoggingRule(),
 				rules.NewAwsS3BucketDeprecatedObjectLockConfigurationRule(),

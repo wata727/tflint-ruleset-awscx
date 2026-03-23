@@ -677,7 +677,7 @@ Each entry should be short, but should leave enough context for the next cycle t
   - `notes/rule-backlog.md`
   - `notes/research-log.md`
 - Tests run:
-  - pending
+  - `go test ./...`
 - Result:
   - Added a new `WARNING` rule that reports deprecated inline `replication_configuration` blocks on `aws_s3_bucket` and directs users to `aws_s3_bucket_replication_configuration`.
 - Follow-up ideas:
@@ -1817,3 +1817,36 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Continue the same S3 migration track with `awscx_s3_bucket_deprecated_grant`.
   - Switch back to a higher-value applicability rule if a compact CloudFront or ELB candidate becomes clearer.
+
+## 2026-03-23 - Cycle 42
+
+- Goal: Continue the loop with one more low-noise S3 split-resource migration rule.
+- Candidates investigated:
+  - `awscx_s3_bucket_deprecated_grant`
+  - `awscx_cloudfront_distribution_viewer_certificate_minimum_protocol_version_default_certificate`
+  - `awscx_lambda_function_zip_package_required_arguments`
+- Selected candidate:
+  - `awscx_s3_bucket_deprecated_grant`
+- Why selected:
+  - The `aws_s3_bucket` documentation exposes `grant` as another deprecated inline configuration that maps cleanly to a standalone resource, so the rule matches the repository's existing low-noise S3 migration pattern.
+  - Detection is conservative because it only reports explicit `grant` blocks on `aws_s3_bucket`.
+  - The CloudFront and Lambda candidates remain viable, but both require more conditional logic and carry higher false-positive risk than this direct deprecation check.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_acl
+  - https://docs.aws.amazon.com/AmazonS3/latest/userguide/acl-overview.html
+  - https://github.com/hashicorp/terraform-provider-aws/issues/20433
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_s3_bucket_deprecated_grant.go`
+  - `rules/aws_s3_bucket_deprecated_grant_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - pending
+- Result:
+  - Added a new `WARNING` rule that reports deprecated inline `grant` blocks on `aws_s3_bucket` and directs users to `aws_s3_bucket_acl`.
+- Follow-up ideas:
+  - Return to the CloudFront viewer-certificate candidate when the next cycle should prioritize a higher-value applicability rule over another S3 migration warning.
+  - Revisit Lambda package argument combinations only if the detection can be kept strictly expression-driven and low-noise.

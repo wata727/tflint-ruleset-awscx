@@ -60,6 +60,31 @@ Copy this section for each rule candidate.
 
 ## Candidates
 
+## awscx_s3_bucket_deprecated_grant
+
+- Status: implemented
+- Resource(s): `aws_s3_bucket`
+- Short description: Warn on deprecated inline `grant` blocks on `aws_s3_bucket`.
+- Why it matters: The AWS provider has deprecated inline S3 bucket grant blocks in favor of the standalone ACL resource, so keeping them in `aws_s3_bucket` creates avoidable upgrade friction without adding AWS-specific value.
+- Detection approach: Inspect `aws_s3_bucket` resources and report explicit `grant` blocks.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Extends the existing S3 split-resource migration rules with another explicit inline block deprecation and shares the same conservative detection shape.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/AmazonS3/latest/userguide/acl-overview.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_acl
+- terraform-provider-aws issue/PR: https://github.com/hashicorp/terraform-provider-aws/issues/20433
+
+### Notes
+
+- Implemented as `WARNING` because this is provider migration guidance rather than a hard API validation error.
+- The rule only reports explicit inline `grant` blocks on `aws_s3_bucket` and does not inspect standalone ACL resources.
+
 ## awscx_ecs_service_deployment_maximum_percent_daemon
 
 - Status: implemented

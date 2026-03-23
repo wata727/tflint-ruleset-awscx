@@ -63,6 +63,7 @@ go test ./...
 |awscx_s3_bucket_deprecated_acceleration_status|Warn on deprecated inline `acceleration_status` on `aws_s3_bucket`|WARNING|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket|
 |awscx_s3_bucket_deprecated_acl|Warn on deprecated inline `acl` on `aws_s3_bucket`|WARNING|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket|
 |awscx_s3_bucket_configuration_expected_bucket_owner_deprecated|Warn on deprecated `expected_bucket_owner` across S3 bucket configuration sub-resources|WARNING|✔|https://github.com/hashicorp/terraform-provider-aws/pull/46262|
+|awscx_s3_bucket_deprecated_grant|Warn on deprecated inline `grant` blocks on `aws_s3_bucket`|WARNING|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket|
 |awscx_s3_bucket_deprecated_lifecycle_rule|Warn on deprecated inline `lifecycle_rule` on `aws_s3_bucket`|WARNING|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket|
 |awscx_s3_bucket_deprecated_logging|Warn on deprecated inline `logging` on `aws_s3_bucket`|WARNING|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket|
 |awscx_s3_bucket_deprecated_object_lock_configuration|Warn on deprecated inline `object_lock_configuration` on `aws_s3_bucket`|WARNING|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket|
