@@ -1196,3 +1196,35 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Revisit `awscx_lb_listener_mutual_authentication_verify_missing_trust_store_arn` if the next ELB cycle wants another protocol-aware nested block rule.
   - Prefer a non-ELB candidate in the next cycle to keep service coverage balanced.
+
+## 2026-03-23 - Cycle 27
+
+- Goal: Add a low-noise EFS validity rule that complements the existing provisioned-throughput prerequisite check.
+- Candidates investigated:
+  - `awscx_efs_file_system_provisioned_throughput_non_provisioned`
+  - `awscx_efs_file_system_kms_key_without_encrypted`
+  - `awscx_s3_bucket_deprecated_acceleration_status`
+- Selected candidate:
+  - `awscx_efs_file_system_provisioned_throughput_non_provisioned`
+- Why selected:
+  - The provider documentation says `provisioned_throughput_in_mibps` is only applicable when `throughput_mode = "provisioned"`, which makes this an explicit invalid-combination rule rather than a style preference.
+  - Detection is low-noise because it only evaluates configurations that explicitly set `provisioned_throughput_in_mibps`, then reports omitted or clearly non-`provisioned` throughput modes.
+  - The EFS KMS candidate is also strong, but the throughput inverse rule was the cleanest follow-up to an already implemented companion check. The S3 acceleration candidate remains useful but was deferred to avoid another deprecation-only cycle.
+- Sources used:
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/efs_file_system.html.markdown
+  - https://docs.aws.amazon.com/efs/latest/ug/throughput-modes.html
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/s3_bucket.html.markdown
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_efs_file_system_provisioned_throughput_non_provisioned.go`
+  - `rules/aws_efs_file_system_provisioned_throughput_non_provisioned_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `ERROR` rule that reports `aws_efs_file_system` resources setting `provisioned_throughput_in_mibps` unless `throughput_mode` is explicitly `provisioned`.
+- Follow-up ideas:
+  - Revisit `awscx_efs_file_system_kms_key_without_encrypted` for another narrowly scoped EFS argument dependency.
+  - Return to the deferred S3 acceleration deprecation candidate when the next cycle favors split-resource migration rules.

@@ -41,6 +41,7 @@ go test ./...
 |awscx_dynamodb_table_invalid_stream_view_type|Disallow invalid `stream_view_type`|ERROR|✔|https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_StreamSpecification.html|
 |awscx_eks_addon_deprecated_resolve_conflicts|Warn on deprecated `resolve_conflicts` on `aws_eks_addon`|WARNING|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eks_addon|
 |awscx_efs_file_system_missing_provisioned_throughput|Require `provisioned_throughput_in_mibps` when `throughput_mode` is `provisioned`|ERROR|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/efs_file_system|
+|awscx_efs_file_system_provisioned_throughput_non_provisioned|Disallow `provisioned_throughput_in_mibps` unless `throughput_mode` is `provisioned`|ERROR|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/efs_file_system|
 |awscx_instance_deprecated_network_interface|Warn on deprecated `network_interface` blocks on `aws_instance`|WARNING|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance|
 |awscx_instance_imdsv2_optional_tokens|Warn when `metadata_options.http_tokens` on `aws_instance` explicitly allows IMDSv1|WARNING|✔|https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-IMDS-new-instances.html|
 |awscx_lb_listener_alpn_policy_non_tls|Disallow `alpn_policy` unless `aws_lb_listener.protocol` is `TLS`|ERROR|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_listener|

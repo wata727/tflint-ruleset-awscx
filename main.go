@@ -26,6 +26,7 @@ func main() {
 				rules.NewAwsEIPInstanceNetworkInterfaceConflictRule(),
 				rules.NewAwsEKSAddonDeprecatedResolveConflictsRule(),
 				rules.NewAwsEFSFileSystemMissingProvisionedThroughputRule(),
+				rules.NewAwsEFSFileSystemProvisionedThroughputNonProvisionedRule(),
 				rules.NewAwsInstanceDeprecatedNetworkInterfaceRule(),
 				rules.NewAwsLBListenerALPNPolicyNonTLSRule(),
 				rules.NewAwsLBListenerMissingCertificateARNRule(),

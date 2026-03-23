@@ -733,6 +733,76 @@ Copy this section for each rule candidate.
 - Implemented as `ERROR` because the configuration is incomplete when provisioned mode is selected without a throughput value.
 - The rule only checks the missing-attribute case and does not validate numeric limits, which may vary by Region and quota.
 
+## awscx_efs_file_system_provisioned_throughput_non_provisioned
+
+- Status: implemented
+- Resource(s): `aws_efs_file_system`
+- Short description: Disallow `provisioned_throughput_in_mibps` unless `throughput_mode = "provisioned"`.
+- Why it matters: The provider docs mark provisioned throughput as applicable only with `throughput_mode = "provisioned"`, so keeping the attribute on `bursting`, `elastic`, or omitted mode settings creates an invalid or misleading configuration.
+- Detection approach: Report when `provisioned_throughput_in_mibps` is present and `throughput_mode` is omitted or evaluates to a value other than `provisioned`.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Direct companion to `awscx_efs_file_system_missing_provisioned_throughput`, covering the inverse argument constraint without widening scope beyond an explicit provider rule.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/efs/latest/ug/throughput-modes.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/efs_file_system
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Implemented as `ERROR` because the provider describes `provisioned_throughput_in_mibps` as valid only with provisioned throughput mode.
+- The rule intentionally skips unknown `throughput_mode` expressions and only reports omitted or explicit non-`provisioned` values.
+
+## awscx_efs_file_system_kms_key_without_encrypted
+
+- Status: deferred
+- Resource(s): `aws_efs_file_system`
+- Short description: Disallow `kms_key_id` unless `encrypted = true`.
+- Why it matters: The provider docs state that `encrypted` must be set when `kms_key_id` is configured, making this a strong future candidate for another low-noise EFS validity rule.
+- Detection approach: Report when `kms_key_id` is present and `encrypted` is omitted or evaluates to `false`.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Another explicit EFS argument prerequisite, but deferred because the throughput pair was the more symmetric follow-up to the existing EFS rule.
+- Selected on:
+- Implemented on:
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/efs/latest/ug/encryption-at-rest.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/efs_file_system
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Revisit in a future EFS-focused cycle if the repository wants another direct argument-dependency rule.
+
+## awscx_s3_bucket_deprecated_acceleration_status
+
+- Status: deferred
+- Resource(s): `aws_s3_bucket`
+- Short description: Warn on deprecated inline `acceleration_status` on `aws_s3_bucket`.
+- Why it matters: The provider deprecates inline acceleration configuration in favor of `aws_s3_bucket_accelerate_configuration`, so the rule would be low-noise and easy to explain.
+- Detection approach: Flag any explicit `acceleration_status` attribute on `aws_s3_bucket`.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Fits the existing S3 split-resource migration pattern, but deferred to keep service coverage broader this cycle.
+- Selected on:
+- Implemented on:
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/AmazonS3/latest/userguide/transfer-acceleration.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Strong fallback candidate for a future S3 deprecation cycle.
+
 ## awscx_ebs_volume_missing_iops
 
 - Status: implemented
