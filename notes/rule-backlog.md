@@ -178,9 +178,33 @@ Copy this section for each rule candidate.
 - Implemented as `ERROR` because the provider documentation explicitly marks these attribute combinations as invalid.
 - The rule intentionally skips ambiguous expressions and only reports when `manage_master_user_password` is explicitly `true`.
 
+## awscx_db_instance_performance_insights_arguments_without_enabled
+
+- Status: implemented
+- Resource(s): `aws_db_instance`
+- Short description: Disallow `performance_insights_kms_key_id` and `performance_insights_retention_period` unless `performance_insights_enabled = true`.
+- Why it matters: The provider documentation makes both arguments dependent on Performance Insights being enabled, so setting them without enabling the feature is a concrete configuration mistake.
+- Detection approach: Report each dependent argument when it is configured and `performance_insights_enabled` is omitted or explicitly `false`.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Consolidates two closely related dependency checks into one rule to keep the ruleset smaller and the messaging more coherent.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_PerfInsights.Enabling.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Implemented as `ERROR` because the provider documentation explicitly requires `performance_insights_enabled = true` when either dependent argument is set.
+- The rule emits separate issues for the KMS key and retention arguments so the fix is obvious even when both appear in the same resource.
+
 ## awscx_db_instance_performance_insights_kms_key_without_enabled
 
-- Status: deferred
+- Status: rejected
 - Resource(s): `aws_db_instance`
 - Short description: Require `performance_insights_enabled = true` when `performance_insights_kms_key_id` is set.
 - Why it matters: The provider docs require Performance Insights to be enabled before a KMS key can be set for that feature.
@@ -199,11 +223,11 @@ Copy this section for each rule candidate.
 
 ### Notes
 
-- Deferred because the selected rule caught a more direct and higher-impact invalid configuration in the same resource.
+- Replaced by the broader implemented rule `awscx_db_instance_performance_insights_arguments_without_enabled`.
 
 ## awscx_db_instance_performance_insights_retention_without_enabled
 
-- Status: deferred
+- Status: rejected
 - Resource(s): `aws_db_instance`
 - Short description: Require `performance_insights_enabled = true` when `performance_insights_retention_period` is set.
 - Why it matters: The provider docs treat custom Performance Insights retention as dependent on the feature being enabled first.
@@ -222,7 +246,53 @@ Copy this section for each rule candidate.
 
 ### Notes
 
-- Deferred because it is another companion-setting rule and the selected candidate was more immediately actionable.
+- Replaced by the broader implemented rule `awscx_db_instance_performance_insights_arguments_without_enabled`.
+
+## awscx_db_instance_database_insights_advanced_requirements
+
+- Status: deferred
+- Resource(s): `aws_db_instance`
+- Short description: Require `performance_insights_enabled = true` and a long enough retention period when `database_insights_mode = "advanced"`.
+- Why it matters: AWS documents advanced Database Insights mode as depending on Performance Insights and a retention period of at least 465 days.
+- Detection approach: Report when `database_insights_mode` resolves to `advanced` and the dependent Performance Insights settings are omitted or explicitly invalid.
+- False-positive risk: low
+- Implementation difficulty: medium
+- Overlap notes: Adjacent to the implemented Performance Insights dependency rule, but slightly broader because it depends on newer Database Insights semantics.
+- Selected on:
+- Implemented on:
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_DatabaseInsights.TurningOnAdvanced.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance
+- terraform-provider-aws issue/PR: https://github.com/hashicorp/terraform-provider-aws/issues/41607
+
+### Notes
+
+- Deferred for now because the selected rule addresses older and more immediately invalid configurations with a smaller implementation surface.
+
+## awscx_lb_listener_missing_ssl_policy
+
+- Status: deferred
+- Resource(s): `aws_lb_listener`
+- Short description: Require `ssl_policy` when `protocol` is `HTTPS` or `TLS`.
+- Why it matters: The provider documentation marks `ssl_policy` as required for encrypted listeners, making omission an explicit invalid configuration.
+- Detection approach: Evaluate `protocol` and report when it resolves to `HTTPS` or `TLS` but `ssl_policy` is not configured.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Strong companion to the existing certificate ARN listener rule, but deferred to avoid clustering too many ELB listener checks in a single cycle.
+- Selected on:
+- Implemented on:
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/elasticloadbalancing/latest/APIReference/API_CreateListener.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_listener
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Kept in backlog as a likely near-term rule because the detection and explanation are both straightforward.
 
 ## awscx_spot_instance_request_legacy_api
 

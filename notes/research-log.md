@@ -238,6 +238,72 @@ Each entry should be short, but should leave enough context for the next cycle t
 
 - Goal: Add a non-IMDS rule grounded in an AWS or provider requirement with low false-positive risk.
 - Candidates investigated:
+  - `awscx_lb_listener_missing_certificate_arn`
+  - `awscx_efs_file_system_missing_provisioned_throughput`
+  - `awscx_db_instance_publicly_accessible`
+- Selected candidate:
+  - `awscx_lb_listener_missing_certificate_arn`
+- Why selected:
+  - The provider documentation requires `certificate_arn` for encrypted listeners, so omission is a direct validity error rather than a best-practice opinion.
+  - Detection is simple and low-noise because it only inspects explicit `protocol` values on `aws_lb_listener`.
+  - The alternative candidates were also viable, but this one offered the clearest AWS/provider-specific contract with minimal implementation surface.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_listener
+  - https://docs.aws.amazon.com/elasticloadbalancing/latest/APIReference/API_CreateListener.html
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_lb_listener_missing_certificate_arn.go`
+  - `rules/aws_lb_listener_missing_certificate_arn_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added an `ERROR` rule that reports `aws_lb_listener` resources using `HTTPS` or `TLS` without `certificate_arn`.
+- Follow-up ideas:
+  - Add the companion `ssl_policy` requirement check in a later ELB-focused cycle.
+  - Continue balancing the ruleset with more RDS and EFS validity checks.
+
+## 2026-03-23 - Cycle 5
+
+- Goal: Add another low-noise AWS-specific validity rule for `aws_db_instance`.
+- Candidates investigated:
+  - `awscx_db_instance_performance_insights_arguments_without_enabled`
+  - `awscx_db_instance_database_insights_advanced_requirements`
+  - `awscx_lb_listener_missing_ssl_policy`
+- Selected candidate:
+  - `awscx_db_instance_performance_insights_arguments_without_enabled`
+- Why selected:
+  - The provider documentation explicitly states that both `performance_insights_kms_key_id` and `performance_insights_retention_period` require `performance_insights_enabled = true`.
+  - Detection is direct and low-noise because it only reports explicit dependent arguments and does not need to infer deployment intent.
+  - The alternative candidates were also good, but the Database Insights rule depends on newer feature semantics and the listener SSL policy rule was slightly less urgent than an RDS validity check grounded in existing arguments.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance
+  - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_PerfInsights.Enabling.html
+  - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_DatabaseInsights.TurningOnAdvanced.html
+  - https://github.com/hashicorp/terraform-provider-aws/issues/41607
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_listener
+  - https://docs.aws.amazon.com/elasticloadbalancing/latest/APIReference/API_CreateListener.html
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_db_instance_performance_insights_arguments_without_enabled.go`
+  - `rules/aws_db_instance_performance_insights_arguments_without_enabled_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `ERROR` rule that reports `performance_insights_kms_key_id` and `performance_insights_retention_period` when they are configured without `performance_insights_enabled = true` on `aws_db_instance`.
+- Follow-up ideas:
+  - Implement the deferred `database_insights_mode = "advanced"` dependency rule once this Performance Insights baseline check is merged.
+  - Revisit the deferred `awscx_lb_listener_missing_ssl_policy` rule in a later ELB-focused cycle.
+
+## 2026-03-23 - Cycle 8
+
+- Goal: Add another low-noise AWS/provider-specific validity rule and keep coverage balanced outside EC2 and S3.
+- Candidates investigated:
   - `awscx_efs_file_system_missing_provisioned_throughput`
   - `awscx_db_instance_publicly_accessible`
   - `awscx_lb_missing_deletion_protection`

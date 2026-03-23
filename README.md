@@ -30,6 +30,7 @@ go test ./...
 |awscx_api_gateway_deployment_deprecated_stage_management|Warn on deprecated stage management fields on `aws_api_gateway_deployment`|WARNING|✔|https://github.com/hashicorp/terraform-provider-aws/issues/39957|
 |awscx_db_instance_dedicated_log_volume_non_io1_io2|Disallow `dedicated_log_volume` unless `storage_type` is `io1` or `io2`|ERROR|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance|
 |awscx_db_instance_manage_master_user_password_conflict|Disallow `password` and `password_wo` when `manage_master_user_password = true`|ERROR|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance|
+|awscx_db_instance_performance_insights_arguments_without_enabled|Disallow Performance Insights KMS or retention arguments unless `performance_insights_enabled = true`|ERROR|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance|
 |awscx_db_instance_missing_iops|Require `iops` when `storage_type` is `io1`, `io2`, or `gp3`|ERROR|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance|
 |awscx_db_instance_storage_throughput_non_gp3|Disallow `storage_throughput` unless `storage_type` is `gp3`|ERROR|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance|
 |awscx_ebs_volume_missing_iops|Require `iops` when `type` is `io1` or `io2`|ERROR|✔|https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ebs_volume|

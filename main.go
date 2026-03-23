@@ -15,6 +15,7 @@ func main() {
 				rules.NewAwsAPIGatewayDeploymentDeprecatedStageManagementRule(),
 				rules.NewAwsDBInstanceDedicatedLogVolumeNonIO1IO2Rule(),
 				rules.NewAwsDBInstanceManageMasterUserPasswordConflictRule(),
+				rules.NewAwsDBInstancePerformanceInsightsArgumentsWithoutEnabledRule(),
 				rules.NewAwsDBInstanceMissingIOPSRule(),
 				rules.NewAwsDBInstanceStorageThroughputNonGP3Rule(),
 				rules.NewAwsDynamoDBTableInvalidStreamViewTypeRule(),
