@@ -234,9 +234,6 @@ Each entry should be short, but should leave enough context for the next cycle t
   - Look for a non-IMDS candidate next to keep the ruleset balanced across AWS services.
   - Explore simple enum or deprecated-argument checks in RDS, EFS, and EC2 resources.
 
-## 2026-03-23 - Cycle 4
-
-- Goal: Add a non-IMDS rule grounded in an AWS or provider requirement with low false-positive risk.
 - Candidates investigated:
   - `awscx_lb_listener_missing_certificate_arn`
   - `awscx_efs_file_system_missing_provisioned_throughput`
@@ -1300,3 +1297,36 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Revisit `awscx_autoscaling_group_invalid_max_instance_lifetime` for a small, clear Auto Scaling validation rule in the next cycle.
   - Consider another RDS dependency rule only if it stays equally conservative around omitted defaults and unknown expressions.
+
+## 2026-03-23 - Cycle 30
+
+- Goal: Add a low-noise ELB target group validity rule grounded in explicit health check protocol requirements.
+- Candidates investigated:
+  - `awscx_lb_target_group_matcher_non_http_health_check`
+  - `awscx_lb_target_group_protocol_version_non_http`
+  - `awscx_lb_target_group_lambda_inapplicable_network_attributes`
+- Selected candidate:
+  - `awscx_lb_target_group_matcher_non_http_health_check`
+- Why selected:
+  - The provider documentation explicitly limits `health_check.matcher` to HTTP or HTTPS health checks, with a separate allowance for Lambda target groups, so the rule stays in clear invalid-configuration territory.
+  - Detection is low-noise because it only reports explicit non-HTTP/HTTPS `health_check.protocol` values and skips unknown expressions and Lambda target groups.
+  - The alternative candidates remain useful, but this one matched the repository bias toward direct AWS/provider constraints with minimal inference.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_target_group
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/lb_target_group.html.markdown
+  - https://docs.aws.amazon.com/elasticloadbalancing/latest/network/target-group-health-checks.html
+  - https://github.com/hashicorp/terraform-provider-aws/issues/8305
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_lb_target_group_matcher_non_http_health_check.go`
+  - `rules/aws_lb_target_group_matcher_non_http_health_check_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `ERROR` rule that reports `aws_lb_target_group.health_check.matcher` when `health_check.protocol` is explicitly set to a non-HTTP/HTTPS value.
+- Follow-up ideas:
+  - Revisit `awscx_lb_target_group_protocol_version_non_http` for another compact ELB validation rule.
+  - Consider a separate Lambda-only attribute rule for `port`, `protocol`, and `vpc_id` on `aws_lb_target_group`.

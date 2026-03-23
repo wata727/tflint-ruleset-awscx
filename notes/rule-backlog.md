@@ -60,6 +60,30 @@ Copy this section for each rule candidate.
 
 ## Candidates
 
+## awscx_lb_target_group_matcher_non_http_health_check
+
+- Status: implemented
+- Resource(s): `aws_lb_target_group`
+- Short description: Disallow `health_check.matcher` unless `health_check.protocol` is `HTTP` or `HTTPS`.
+- Why it matters: The provider documentation limits custom matcher usage to HTTP or HTTPS health checks, with a separate allowance for Lambda target groups. Leaving `matcher` on TCP health checks is a concrete provider-level misconfiguration that commonly shows up on NLB target groups.
+- Detection approach: Inspect `health_check` blocks and report `matcher` when `health_check.protocol` is explicitly set to a non-HTTP value, while skipping Lambda target groups and unknown expressions.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Adds ELB target group validation coverage without overlapping the existing listener-focused rules.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/elasticloadbalancing/latest/network/target-group-health-checks.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_target_group
+- terraform-provider-aws issue/PR: https://github.com/hashicorp/terraform-provider-aws/issues/8305
+
+### Notes
+
+- Implemented as `ERROR` because the provider documents this as an invalid attribute combination rather than a recommendation.
+- The rule only reports explicit non-HTTP/HTTPS health check protocols to avoid guessing from target group defaults.
+
 ## awscx_cloudwatch_log_group_delivery_retention_in_days
 
 - Status: implemented
