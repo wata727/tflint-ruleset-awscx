@@ -27,6 +27,7 @@ func main() {
 				rules.NewAwsEKSAddonDeprecatedResolveConflictsRule(),
 				rules.NewAwsEFSFileSystemMissingProvisionedThroughputRule(),
 				rules.NewAwsInstanceDeprecatedNetworkInterfaceRule(),
+				rules.NewAwsLBListenerALPNPolicyNonTLSRule(),
 				rules.NewAwsLBListenerMissingCertificateARNRule(),
 				rules.NewAwsLBListenerMissingSSLPolicyRule(),
 				rules.NewAwsLaunchTemplateDeprecatedElasticGPUSpecificationsRule(),

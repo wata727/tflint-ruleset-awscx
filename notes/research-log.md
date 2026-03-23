@@ -1162,3 +1162,37 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Revisit `awscx_spot_instance_request_legacy_api` if the ruleset wants a broader provider-deprecation warning beyond attribute-level validity checks.
   - Re-evaluate the SQS high-throughput FIFO candidate only if it can be narrowed to a lower-noise misconfiguration pattern.
+
+## 2026-03-23 - Cycle 26
+
+- Goal: Add another low-noise ELB listener validity rule grounded in explicit protocol-specific argument support.
+- Candidates investigated:
+  - `awscx_lb_listener_alpn_policy_non_tls`
+  - `awscx_lb_listener_mutual_authentication_verify_missing_trust_store_arn`
+  - `awscx_spot_instance_request_legacy_api`
+- Selected candidate:
+  - `awscx_lb_listener_alpn_policy_non_tls`
+- Why selected:
+  - The provider documentation says `alpn_policy` can be set only when `protocol` is `TLS`, and the ELB CreateListener API documents ALPN policy as a TLS-listener field, so the rule stays in explicit invalid-configuration territory.
+  - Detection is straightforward and low-noise because it only reports listeners with both an explicit `alpn_policy` and a resolvable non-`TLS` protocol.
+  - The mutual-authentication candidate is still promising, but nested block mode validation needs more care to avoid overlapping provider-required-field errors. The Spot Instance Request candidate remains broader and more advisory.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_listener
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/lb_listener.html.markdown
+  - https://docs.aws.amazon.com/elasticloadbalancing/latest/APIReference/API_CreateListener.html
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/spot_instance_request.html.markdown
+  - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-best-practices.html#which-spot-request-method-to-use
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_lb_listener_alpn_policy_non_tls.go`
+  - `rules/aws_lb_listener_alpn_policy_non_tls_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `ERROR` rule that reports `aws_lb_listener` resources setting `alpn_policy` with any explicit non-`TLS` protocol.
+- Follow-up ideas:
+  - Revisit `awscx_lb_listener_mutual_authentication_verify_missing_trust_store_arn` if the next ELB cycle wants another protocol-aware nested block rule.
+  - Prefer a non-ELB candidate in the next cycle to keep service coverage balanced.

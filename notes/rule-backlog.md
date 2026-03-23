@@ -83,6 +83,30 @@ Copy this section for each rule candidate.
 
 - Implemented as a `WARNING` because the configuration is misleading and can cause drift or provider trouble, but the provider documentation describes the argument as ignored rather than as a hard validation error.
 
+## awscx_lb_listener_alpn_policy_non_tls
+
+- Status: implemented
+- Resource(s): `aws_lb_listener`
+- Short description: Disallow `alpn_policy` unless the listener protocol is `TLS`.
+- Why it matters: The provider and ELB API documentation both scope ALPN policy support to TLS listeners, so attaching it to another listener protocol is an invalid configuration rather than a preference.
+- Detection approach: Evaluate `protocol` and report when it resolves to a non-`TLS` value while `alpn_policy` is explicitly configured.
+- False-positive risk: low
+- Implementation difficulty: low
+- Overlap notes: Another ELB listener dependency rule, but it covers a separate protocol-specific argument from the existing certificate and SSL policy checks.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
+
+### Sources
+
+- AWS docs: https://docs.aws.amazon.com/elasticloadbalancing/latest/APIReference/API_CreateListener.html
+- Terraform Registry docs: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_listener
+- terraform-provider-aws issue/PR:
+
+### Notes
+
+- Implemented as `ERROR` because the provider docs describe `alpn_policy` as valid only for TLS listeners.
+- The rule intentionally skips listeners with unknown `protocol` expressions because the final protocol cannot be resolved statically.
+
 ## awscx_lb_listener_missing_certificate_arn
 
 - Status: implemented
