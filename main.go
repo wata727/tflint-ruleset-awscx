@@ -16,6 +16,7 @@ func main() {
 				rules.NewAwsCloudWatchLogGroupDeliveryRetentionInDaysRule(),
 				rules.NewAwsDBInstanceDatabaseInsightsAdvancedRequirementsRule(),
 				rules.NewAwsDBInstanceDedicatedLogVolumeNonIO1IO2Rule(),
+				rules.NewAwsDBInstanceEnhancedMonitoringRoleRequirementsRule(),
 				rules.NewAwsDBInstanceManageMasterUserPasswordConflictRule(),
 				rules.NewAwsDBInstancePerformanceInsightsArgumentsWithoutEnabledRule(),
 				rules.NewAwsDBInstanceMissingIOPSRule(),

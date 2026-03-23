@@ -1265,3 +1265,38 @@ Each entry should be short, but should leave enough context for the next cycle t
 - Follow-up ideas:
   - Revisit `awscx_db_instance_enhanced_monitoring_role_requirements` for another low-noise RDS dependency rule.
   - Return to `awscx_autoscaling_group_invalid_max_instance_lifetime` when the next cycle favors a compact numeric validation rule.
+
+## 2026-03-23 - Cycle 29
+
+- Goal: Add another low-noise RDS dependency rule grounded in explicit Enhanced Monitoring requirements.
+- Candidates investigated:
+  - `awscx_db_instance_enhanced_monitoring_role_requirements`
+  - `awscx_autoscaling_group_invalid_max_instance_lifetime`
+  - `awscx_s3_bucket_deprecated_acceleration_status`
+- Selected candidate:
+  - `awscx_db_instance_enhanced_monitoring_role_requirements`
+- Why selected:
+  - The provider documentation exposes `monitoring_role_arn` as part of Enhanced Monitoring configuration, and the AWS RDS documentation explicitly requires `MonitoringRoleArn` whenever `MonitoringInterval` is non-zero.
+  - Detection is low-noise because the rule only evaluates explicit, statically resolvable `monitoring_interval` values and avoids guessing from omitted defaults or unknown expressions.
+  - The Auto Scaling lifetime candidate remains good but is a narrower numeric-range validation, and the S3 acceleration candidate would have been another deprecation-only warning in an already S3-heavy ruleset.
+- Sources used:
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_instance
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/db_instance.html.markdown
+  - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Monitoring.OS.Enabling.html
+  - https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/autoscaling_group
+  - https://docs.aws.amazon.com/autoscaling/ec2/userguide/asg-max-instance-lifetime.html
+  - https://raw.githubusercontent.com/hashicorp/terraform-provider-aws/main/website/docs/r/s3_bucket.html.markdown
+- Files changed:
+  - `main.go`
+  - `README.md`
+  - `rules/aws_db_instance_enhanced_monitoring_role_requirements.go`
+  - `rules/aws_db_instance_enhanced_monitoring_role_requirements_test.go`
+  - `notes/rule-backlog.md`
+  - `notes/research-log.md`
+- Tests run:
+  - `go test ./...`
+- Result:
+  - Added a new `ERROR` rule that requires `monitoring_role_arn` for explicit non-zero `monitoring_interval` values and rejects the role when the interval is explicitly `0`.
+- Follow-up ideas:
+  - Revisit `awscx_autoscaling_group_invalid_max_instance_lifetime` for a small, clear Auto Scaling validation rule in the next cycle.
+  - Consider another RDS dependency rule only if it stays equally conservative around omitted defaults and unknown expressions.

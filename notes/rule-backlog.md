@@ -1121,16 +1121,16 @@ Copy this section for each rule candidate.
 
 ## awscx_db_instance_enhanced_monitoring_role_requirements
 
-- Status: deferred
+- Status: implemented
 - Resource(s): `aws_db_instance`
 - Short description: Require `monitoring_role_arn` when `monitoring_interval` enables Enhanced Monitoring, and disallow the role when interval is `0`.
 - Why it matters: The provider documentation models `monitoring_role_arn` as dependent on Enhanced Monitoring, so mismatched settings are concrete provider misuse rather than a preference.
 - Detection approach: Evaluate explicit `monitoring_interval` values and report missing or extraneous `monitoring_role_arn` based on whether monitoring is enabled.
 - False-positive risk: low
 - Implementation difficulty: medium
-- Overlap notes: Valuable RDS follow-up candidate, but it needs slightly more care around interval semantics and default handling than the selected ELB listener rule.
-- Selected on:
-- Implemented on:
+- Overlap notes: Extends the existing RDS dependency checks with another provider-documented argument pairing and stays low-noise by only acting on explicit, resolvable monitoring intervals.
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
 
 ### Sources
 
@@ -1141,7 +1141,8 @@ Copy this section for each rule candidate.
 
 ### Notes
 
-- Deferred because the selected listener rule offered a smaller, cleaner implementation surface for this cycle.
+- Implemented as `ERROR` because the provider and AWS documentation treat the role and interval as a required pair when Enhanced Monitoring is enabled.
+- The rule intentionally skips configurations that set `monitoring_role_arn` without an explicit `monitoring_interval` to avoid relying on provider defaults for reporting.
 
 ## Backlog Hygiene
 
