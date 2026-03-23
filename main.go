@@ -26,6 +26,7 @@ func main() {
 				rules.NewAwsEFSFileSystemMissingProvisionedThroughputRule(),
 				rules.NewAwsInstanceDeprecatedNetworkInterfaceRule(),
 				rules.NewAwsLBListenerMissingCertificateARNRule(),
+				rules.NewAwsLBListenerMissingSSLPolicyRule(),
 				rules.NewAwsLaunchTemplateDeprecatedElasticGPUSpecificationsRule(),
 				rules.NewAwsInstanceIMDSv2OptionalTokensRule(),
 				rules.NewAwsLaunchTemplateIMDSv2OptionalTokensRule(),

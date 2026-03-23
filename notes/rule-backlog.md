@@ -273,7 +273,7 @@ Copy this section for each rule candidate.
 
 ## awscx_lb_listener_missing_ssl_policy
 
-- Status: deferred
+- Status: implemented
 - Resource(s): `aws_lb_listener`
 - Short description: Require `ssl_policy` when `protocol` is `HTTPS` or `TLS`.
 - Why it matters: The provider documentation marks `ssl_policy` as required for encrypted listeners, making omission an explicit invalid configuration.
@@ -281,8 +281,8 @@ Copy this section for each rule candidate.
 - False-positive risk: low
 - Implementation difficulty: low
 - Overlap notes: Strong companion to the existing certificate ARN listener rule, but deferred to avoid clustering too many ELB listener checks in a single cycle.
-- Selected on:
-- Implemented on:
+- Selected on: 2026-03-23
+- Implemented on: 2026-03-23
 
 ### Sources
 
@@ -292,7 +292,8 @@ Copy this section for each rule candidate.
 
 ### Notes
 
-- Kept in backlog as a likely near-term rule because the detection and explanation are both straightforward.
+- Implemented as `ERROR` because encrypted listeners without an explicit SSL policy violate a documented provider requirement rather than a best-practice recommendation.
+- The rule intentionally checks only explicit `protocol` values and skips ambiguous expressions to avoid speculative reporting.
 
 ## awscx_spot_instance_request_legacy_api
 
